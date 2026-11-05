@@ -1,0 +1,832 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.7cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{mathpazo}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{mathrsfs}
+\usepackage{tikz-cd}
+\usepackage{enumitem}
+\usepackage[noend]{algpseudocode}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+\setlist{itemsep=0.25em,topsep=0.3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\cat}[1]{\mathsf{#1}}
+\newcommand{\Set}{\cat{Set}}
+\newcommand{\FinSet}{\cat{FinSet}}
+\newcommand{\Str}{\cat{Str}}
+\newcommand{\Pol}{\operatorname{Pol}}
+\newcommand{\Sol}{\operatorname{Sol}}
+\newcommand{\Solm}[1]{#1\text{-}\mathrm{Sol}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\pr}{\mathrm{pr}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\bA}{\mathbf{A}}
+\newcommand{\bB}{\mathbf{B}}
+\newcommand{\bI}{\mathbf{I}}
+\newcommand{\bF}{\mathbf{F}}
+\newcommand{\Pm}{\mathscr{P}}
+\newcommand{\M}{\mathscr{M}}
+\newcommand{\N}{\mathscr{N}}
+\newcommand{\Hm}{\mathscr{H}}
+\newcommand{\T}{\mathscr{T}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Qc}{\mathscr{Q}_{\mathrm{conv}}}
+\newcommand{\Za}{\mathscr{Z}_{\mathrm{aff}}}
+\newcommand{\Mba}{\mathscr{M}_{\mathrm{BLP+AIP}}}
+\newcommand{\OIT}{\mathbf{1in3}}
+\newcommand{\NAE}{\mathbf{NAE}}
+\newcommand{\PCSP}{\mathrm{PCSP}}
+\newcommand{\CSP}{\mathrm{CSP}}
+\newcommand{\pip}{{\pi'}}
+
+\title{\textbf{Minions and Relaxations of Promise CSPs}\\[0.3em]
+\large Lecture notes}
+\author{Piyush Vasudha Naresh\\[0.2em] \small TU Wien}
+\date{November 2026}
+
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+
+One of the central results of the algebraic theory of promise constraint satisfaction is that whether a relaxation algorithm solves $\PCSP(\bA,\bB)$ is decided by the existence of a minion homomorphism into the polymorphism minion $\Pol(\bA,\bB)$. These notes are an exposition of this result and its standard applications, which are due to Barto, Bulín, Krokhin and Opršal \cite{BBKO} unless stated otherwise. We assume some familiarity with relational structures and polymorphisms, but no category theory beyond what Section~\ref{sec:min} introduces.
+
+Section~\ref{sec:min} introduces functors, natural transformations and minions. Section~\ref{sec:lc} introduces label cover, and Section~\ref{sec:relax} defines the relaxation of label cover given by a minion. In Section~\ref{sec:pcsp} we translate promise CSPs into label cover and prove the characterisation above (Theorem~\ref{thm:pcsp}).
+
+Section~\ref{sec:app} turns it into a recipe (Theorem~\ref{thm:generic}), which organises the rest of the notes: whether a relaxation solves $\PCSP(\bA,\bB)$ comes down to which minor identities certain generic elements of its minion satisfy. We apply this to arc consistency, the basic LP relaxation, the affine integer relaxation and their combination, with the template $(\OIT,\NAE)$ of Example~\ref{ex:1in3} as a running example of a promise problem that is not a CSP.
+
+%=====================================================================
+\section{Structures, functors and minions}\label{sec:min}
+
+\subsection{Structures and polymorphisms}\label{sec:str}
+
+\emph{Conventions.} Composition is written from right to left, so $g\circ f$ means ``first $f$, then $g$''. A relational signature $\tau$ is a finite set of relation symbols, each with an arity $k\geq 1$. Structures are written in bold ($\bA$, $\bB$) and their domains in plain letters ($A$, $B$), and $[n]=\{1,\dots,n\}$. For a set $X$, the elements of $A^X$ are functions $X\to A$, and we write $a(x)$ for the value of $a$ at $x$. A tuple $r\in A^k$ is the same as a function $[k]\to A$, and for a single tuple we also write $r_i$ for $r(i)$.
+
+A \emph{$\tau$-structure} $\bA$ is a set $A$ together with a relation $R^{\bA}\subseteq A^k$ for every $R\in\tau$ of arity $k$. A \emph{homomorphism} $f\colon\bA\to\bB$ is a function $f\colon A\to B$ such that
+\[
+(f(a_1),\dots,f(a_k))\in R^{\bB}\quad\text{for every } R\in\tau \text{ of arity } k \text{ and every } (a_1,\dots,a_k)\in R^{\bA}.
+\]
+We write $\bA\to\bB$ if there is some homomorphism from $\bA$ to $\bB$, and $\bA\not\to\bB$ otherwise. In this language $\CSP(\bB)$ is the problem of deciding, given a finite structure $\bI$, whether $\bI\to\bB$.
+
+\begin{definition}[Powers]
+Let $\bA$ be a $\tau$-structure and $X$ a nonempty finite set. The \emph{power} $\bA^X$ has as domain the set $A^X$ of all functions $X\to A$, and for $R$ of arity $k$,
+\[
+(a_1,\dots,a_k)\in R^{\bA^X}\quad\text{if and only if}\quad(a_1(x),\dots,a_k(x))\in R^{\bA}\ \text{ for every } x\in X.
+\]
+\end{definition}
+
+An element of $A^X$ is thus a tuple whose coordinates are indexed by $X$, and relations are imposed coordinatewise; for $X=[n]$ this is the usual power $\bA^n$.
+
+\begin{definition}[Polymorphisms]\label{def:pol}
+Let $\bA$ and $\bB$ be $\tau$-structures. An \emph{$X$-ary polymorphism} from $\bA$ to $\bB$ is a homomorphism $f\colon\bA^X\to\bB$. For a function $\pi\colon X\to Y$, the \emph{minor} of $f$ along $\pi$ is the function
+\[
+A^Y\to B,\qquad y\mapsto f(y\circ\pi).
+\]
+\end{definition}
+
+The minor is again a polymorphism, since $y\mapsto y\circ\pi$ is a homomorphism $\bA^Y\to\bA^X$ (every coordinate of $y\circ\pi$ is a coordinate of $y$). For $X=[n]$ and $Y=[m]$ the minor is the function $(y_1,\dots,y_m)\mapsto f(y_{\pi(1)},\dots,y_{\pi(n)})$, so taking minors means identifying, permuting or adding dummy variables.
+
+For instance, the minors of the binary polymorphism $\min$ of $(\{0,1\};\leq)$ along $[2]\to[1]$, and along the map $[2]\to[3]$ with $1\mapsto1$ and $2\mapsto3$, are $(y_1)\mapsto y_1$ and $(y_1,y_2,y_3)\mapsto\min(y_1,y_3)$.
+
+\subsection{Functors}\label{sec:fun}
+
+A \emph{category} consists of objects, morphisms $f\colon X\to Y$ between them, an identity morphism $\id_X\colon X\to X$ for every object $X$, and a composite $g\circ f\colon X\to Z$ for all morphisms $f\colon X\to Y$ and $g\colon Y\to Z$, such that composition is associative and $f\circ\id_X=f=\id_Y\circ f$. We only need the category $\Set$ of sets and functions and the category $\FinSet$ of \emph{nonempty} finite sets and functions between them; another example is the category $\Str_\tau$ of $\tau$-structures and homomorphisms.
+
+\begin{definition}[Functor]
+Let $\mathcal C$ and $\mathcal D$ be categories. A \emph{functor} $F\colon\mathcal C\to\mathcal D$ assigns to every object $X$ of $\mathcal C$ an object $F(X)$ of $\mathcal D$, and to every morphism $f\colon X\to Y$ a morphism $F(f)\colon F(X)\to F(Y)$, in such a way that
+\[
+F(\id_X)=\id_{F(X)}\qquad\text{and}\qquad F(g\circ f)=F(g)\circ F(f).
+\]
+\end{definition}
+
+\begin{example}\label{ex:functors}
+The following are functors $\FinSet\to\Set$.
+\begin{enumerate}[label=(\alph*)]
+  \item The \emph{inclusion}, which sends every set and every function to itself.
+  \item The \emph{nonempty power set functor}, which sends $X$ to the set of nonempty subsets of $X$, and $\pi\colon X\to Y$ to the direct image map $S\mapsto\pi[S]$.
+  \item The \emph{polymorphism functor} $\Pol(\bA,\bB)$, since taking minors is functorial. Let $\Pol(\bA,\bB)(X)$ be the set of $X$-ary polymorphisms from $\bA$ to $\bB$, and let $\Pol(\bA,\bB)(\pi)$ send each polymorphism to its minor along $\pi$. The minor of $f$ along $\id_X$ is $f$ itself, and taking the minor along $\pi\colon X\to Y$ and then along $\sigma\colon Y\to Z$ gives $z\mapsto f(z\circ\sigma\circ\pi)$, the minor along $\sigma\circ\pi$.
+\end{enumerate}
+\end{example}
+
+\subsection{Natural transformations}\label{sec:nat}
+
+Functors between two fixed categories are compared by natural transformations, which are families of maps defined uniformly, without choices that depend on the particular object.
+
+\begin{definition}[Natural transformation]
+Let $F,G\colon\mathcal C\to\mathcal D$ be functors. A \emph{natural transformation} $\eta\colon F\Rightarrow G$ assigns to every object $X$ of $\mathcal C$ a morphism $\eta_X\colon F(X)\to G(X)$ such that for every morphism $f\colon X\to Y$ the square
+\[
+\begin{tikzcd}
+F(X)\arrow[r,"\eta_X"]\arrow[d,"F(f)"'] & G(X)\arrow[d,"G(f)"]\\
+F(Y)\arrow[r,"\eta_Y"'] & G(Y)
+\end{tikzcd}
+\]
+commutes, that is, $G(f)\circ\eta_X=\eta_Y\circ F(f)$.
+\end{definition}
+
+\begin{example}\label{ex:nat}\leavevmode
+\begin{enumerate}[label=(\alph*)]
+  \item The maps $x\mapsto\{x\}$ form a natural transformation from the inclusion $\FinSet\to\Set$ to the nonempty power set functor, since $\pi[\{x\}]=\{\pi(x)\}$.
+  \item For a homomorphism $g\colon\bB\to\bB'$, the maps $f\mapsto g\circ f$ form a natural transformation $\Pol(\bA,\bB)\Rightarrow\Pol(\bA,\bB')$, because composing with $g$ and taking a minor can be done in either order.
+  \item There is no natural way to choose an element of a set. Let $\T\colon\FinSet\to\Set$ be the functor \emph{constant at a point}, which sends every set to a fixed one-point set $\{\ast\}$ and every function to the identity of $\{\ast\}$. A natural transformation from $\T$ to the inclusion has components $\{\ast\}\to X$, so it would choose an element $c_X\in X$ for every $X$, with $\pi(c_X)=c_Y$ for all $\pi\colon X\to Y$. For $X=Y=\{0,1\}$ the two constant maps would force both $c_Y=0$ and $c_Y=1$.
+\end{enumerate}
+\end{example}
+
+\subsection{Minions}\label{sec:minions}
+
+\begin{definition}[Minion]\label{def:minion}
+A \emph{minion} is a functor $\M\colon\FinSet\to\Set$.\footnote{The objects of $\FinSet$ form a proper class, but every nonempty finite set is in bijection with some $[n]$. A minion homomorphism is determined by its components at the sets $[n]$ (transport along a bijection; naturality makes the result independent of the bijection), so the homomorphisms between two minions form a set, and every functor defined only on the sets $[n]$, as in \cite{BBKO}, extends to a minion, uniquely up to isomorphism. We use arbitrary finite sets because in label cover the arities are label sets.} Elements of $\M(X)$ are called \emph{$X$-ary}, and for $\pi\colon X\to Y$ and $p\in\M(X)$, the element $\M(\pi)(p)\in\M(Y)$ is the \emph{minor} of $p$ along $\pi$. A \emph{minion homomorphism} $\xi\colon\M\to\N$ is a natural transformation, that is, a family of maps $\xi_X\colon\M(X)\to\N(X)$ such that
+\[
+\xi_Y\big(\M(\pi)(p)\big)=\N(\pi)\big(\xi_X(p)\big)\quad\text{for every } \pi\colon X\to Y \text{ and every } p\in\M(X).
+\]
+We write $\M\to\N$ if there is a minion homomorphism from $\M$ to $\N$.
+\end{definition}
+
+Minion homomorphisms compose componentwise, so $\M\to\N$ and $\N\to\N'$ give $\M\to\N'$. Informally, a minion is ``a collection of functions of all arities, closed under taking minors'', in which we have forgotten that the elements are functions and kept only the operation of taking minors.
+
+\begin{example}\label{ex:minions}
+The functors of Example~\ref{ex:functors} are minions.
+\begin{enumerate}[label=(\alph*)]
+  \item The inclusion is the \emph{projection minion} $\Pm$, with $\Pm(X)=X$ and $\Pm(\pi)=\pi$. An element $x\in X$ stands for the projection onto coordinate $x$, whose minor along $\pi$ is the projection onto coordinate $\pi(x)$. Indeed, for a structure $\bA$ with at least two elements, the projections $a\mapsto a(x)$ form a copy of $\Pm$ inside $\Pol(\bA,\bA)$.
+  \item The nonempty power set functor is a minion $\Hm$, which will describe arc consistency (Section~\ref{sec:ac}).
+  \item $\Pol(\bA,\bB)$ is the \emph{polymorphism minion}, and we write $\Pol(\bA)=\Pol(\bA,\bA)$.
+\end{enumerate}
+In these terms, Example~\ref{ex:nat} gives a minion homomorphism $\Pm\to\Hm$, a minion homomorphism $\Pol(\bA,\bB)\to\Pol(\bA,\bB')$, and the fact that the one-point minion $\T$ does not map to $\Pm$.
+\end{example}
+
+\begin{remark}[Identities]\label{rem:identities}
+Minion homomorphisms preserve every condition that is expressed through minors. For instance, call $p\in\M([n])$ \emph{symmetric} if $\M(\sigma)(p)=p$ for every permutation $\sigma$ of $[n]$. If $p$ is symmetric and $\xi\colon\M\to\N$ is a minion homomorphism, then $\N(\sigma)(\xi_{[n]}(p))=\xi_{[n]}(\M(\sigma)(p))=\xi_{[n]}(p)$, so $\xi_{[n]}(p)$ is symmetric as well. Since $\Pm$ has no symmetric elements of arity $n\geq2$, no minion with such an element maps to $\Pm$; this applies for instance to $\T$, whose element of arity $2$ is symmetric.
+\end{remark}
+
+\begin{remark}[Empty and nonempty minions]\label{rem:nonempty}
+If $\M(X)\neq\varnothing$ for some $X$, then $\M(Y)\neq\varnothing$ for every $Y$, since for $p\in\M(X)$ and any function $\pi\colon X\to Y$ we have $\M(\pi)(p)\in\M(Y)$. Hence a minion is either empty, with $\M(X)=\varnothing$ for all $X$, or has elements of every arity, in which case we call it \emph{nonempty}. The empty minion is of no interest as a relaxation, and from Section~\ref{sec:relax} on all minions are nonempty.
+
+Polymorphism minions can be empty: $\Pol(\bA,\bB)$ is nonempty if and only if $\bA\to\bB$. Indeed, a homomorphism $h\colon\bA\to\bB$ gives the polymorphisms $a\mapsto h(a(x))$, and conversely composing an $X$-ary polymorphism with the diagonal map $a\mapsto(x\mapsto a)$ gives a homomorphism $\bA\to\bB$.
+\end{remark}
+
+%=====================================================================
+\section{Label cover}\label{sec:lc}
+
+Label cover is the problem through which minions and promise CSPs meet, as in \cite{BBKO}.
+
+\begin{definition}[Label cover]\label{def:lc}
+An \emph{instance} $\Sigma$ of label cover consists of
+\begin{itemize}
+  \item a finite set $V$ of \emph{variables};
+  \item for every $x\in V$, a nonempty finite set $D_x$ of \emph{labels};
+  \item a finite set of \emph{constraints}, each a triple $(x,y,\alpha)$ of variables $x,y\in V$ and a function $\alpha\colon D_y\to D_x$.
+\end{itemize}
+A \emph{solution} of $\Sigma$ is a family $(a_x)_{x\in V}$ with $a_x\in D_x$ for every $x$, such that $\alpha(a_y)=a_x$ for every constraint $(x,y,\alpha)$. We write $\Sol(\Sigma)$ for the set of solutions.
+\end{definition}
+
+A constraint $(x,y,\alpha)$ says that the label of $y$ determines the label of $x$. We allow $x=y$, as well as several constraints between the same variables. Requiring $D_x\neq\varnothing$ costs nothing, as a variable without labels can never be labelled.
+
+\begin{example}[Encoding a binary constraint]\label{ex:binary}
+Let $R\subseteq D\times D$ be nonempty, with coordinate projections $\pr_1,\pr_2\colon R\to D$. Take variables $x_1,x_2,y$ with $D_{x_1}=D_{x_2}=D$ and $D_y=R$, and constraints $(x_1,y,\pr_1)$ and $(x_2,y,\pr_2)$. A solution is then a pair $a_y\in R$ together with its two coordinates $a_{x_1}$ and $a_{x_2}$, so the solutions correspond to the pairs in $R$. In this way any CSP instance can be written as a label cover instance (Section~\ref{sec:pcsp}).
+\end{example}
+
+\begin{example}[An instance without solution]\label{ex:swap}
+Let $V=\{x\}$ and $D_x=\{0,1\}$, let $\sigma\colon D_x\to D_x$ swap $0$ and $1$, and let the only constraint be $(x,x,\sigma)$. A solution would be a fixed point of $\sigma$, and there is none.
+\end{example}
+
+%=====================================================================
+\section{Minion relaxations}\label{sec:relax}
+
+Throughout, minions are nonempty (Remark~\ref{rem:nonempty}). A minion $\M$ replaces each label set $D_x$ by the set $\M(D_x)$ of ``generalised labels'', and each function $\alpha\colon D_y\to D_x$ by $\M(\alpha)\colon\M(D_y)\to\M(D_x)$. This is all we need in order to state the constraints of a label cover instance in terms of $\M$.
+
+\subsection{\texorpdfstring{$\M$}{M}-solutions}
+
+\begin{definition}[$\M$-solutions]
+Let $\M$ be a minion and $\Sigma$ a label cover instance. An \emph{$\M$-solution} of $\Sigma$ is a family $(p_x)_{x\in V}$ with $p_x\in\M(D_x)$ for every $x$, such that
+\[
+\M(\alpha)(p_y)=p_x\quad\text{for every constraint } (x,y,\alpha).
+\]
+We write $\Solm{\M}(\Sigma)$ for the set of $\M$-solutions. The \emph{$\M$-relaxation} accepts $\Sigma$ if $\Solm{\M}(\Sigma)\neq\varnothing$, and rejects it otherwise.
+\end{definition}
+
+\begin{example}\label{ex:proj}
+Since $\Pm(D_x)=D_x$ and $\Pm(\alpha)=\alpha$, the $\Pm$-solutions are the solutions, that is, $\Solm{\Pm}(\Sigma)=\Sol(\Sigma)$.
+\end{example}
+
+\begin{proposition}[Monotonicity]\label{prop:monotone}
+Let $\xi\colon\M\to\N$ be a minion homomorphism. If $(p_x)_{x\in V}$ is an $\M$-solution of $\Sigma$, then $(\xi_{D_x}(p_x))_{x\in V}$ is an $\N$-solution of $\Sigma$. In particular, every instance accepted by the $\M$-relaxation is accepted by the $\N$-relaxation.
+\end{proposition}
+
+\begin{proof}
+For a constraint $(x,y,\alpha)$ we have $\N(\alpha)(\xi_{D_y}(p_y))=\xi_{D_x}(\M(\alpha)(p_y))=\xi_{D_x}(p_x)$.
+\end{proof}
+
+\subsection{Completeness}
+
+By Example~\ref{ex:proj} and monotonicity, to show that the $\M$-relaxation accepts every instance that has a solution, it suffices to find a minion homomorphism $\Pm\to\M$.
+
+\begin{lemma}\label{lem:proj-hom}
+Let $u\in\M([1])$, and for $a\in X$ let $\iota_a\colon[1]\to X$ be the function with value $a$. Then the maps
+\[
+\xi_X\colon\Pm(X)=X\to\M(X),\qquad\xi_X(a)=\M(\iota_a)(u),
+\]
+form a minion homomorphism $\xi\colon\Pm\to\M$.
+\end{lemma}
+
+\begin{proof}
+For $\pi\colon X\to Y$ and $a\in X$ we have $\pi\circ\iota_a=\iota_{\pi(a)}$, so
+\[
+\M(\pi)(\xi_X(a))=\M(\pi\circ\iota_a)(u)=\M(\iota_{\pi(a)})(u)=\xi_Y(\pi(a)).\qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Completeness]\label{thm:complete}
+If a label cover instance has a solution, then it has an $\M$-solution.
+\end{theorem}
+
+\begin{proof}
+By Remark~\ref{rem:nonempty} there is some $u\in\M([1])$. A solution is a $\Pm$-solution, and by monotonicity the minion homomorphism of Lemma~\ref{lem:proj-hom} turns it into an $\M$-solution.
+\end{proof}
+
+Every minion therefore gives a relaxation of label cover, and $\Pm$ (which gives the exact problem) is the strongest of them. In general the relaxation is not exact: if $\M$ has an element $p\in\M(\{0,1\})$ fixed by the swap, $\M(\sigma)(p)=p$, then $p$ is an $\M$-solution of the instance of Example~\ref{ex:swap}, which has no solution.
+
+\subsection{When is a relaxation exact?}\label{sec:exact}
+
+\begin{definition}
+The $\M$-relaxation \emph{solves} label cover if $\Solm{\M}(\Sigma)\neq\varnothing$ implies $\Sol(\Sigma)\neq\varnothing$ for every instance $\Sigma$.
+\end{definition}
+
+By completeness, this means that the relaxation accepts precisely the instances that have a solution, and by monotonicity and Example~\ref{ex:proj} this holds whenever there is a minion homomorphism $\M\to\Pm$.
+
+The converse also holds, although we will not need it. One views $\M$ itself as an infinite label cover instance, with a variable $(n,p)$ for every $n\geq1$ and $p\in\M([n])$ (we record $n$, since $\M([n])$ and $\M([m])$ need not be disjoint), label set $[n]$, and a constraint $((m,\M(\pi)(p)),(n,p),\pi)$ for every $\pi\colon[n]\to[m]$. Its solutions are the minion homomorphisms $\M\to\Pm$ (given by their components at the sets $[n]$, see the footnote to Definition~\ref{def:minion}), it has the $\M$-solution $(n,p)\mapsto p$, and a compactness argument (Tychonoff's theorem for the product of the finite discrete spaces $[n]$, one for each variable, or König's lemma when $\M$ is countable) passes from its finite parts to the whole.
+
+Since $\Pm\to\M$ always holds (Lemma~\ref{lem:proj-hom}), the $\M$-relaxation solves label cover if and only if $\M$ and $\Pm$ are homomorphically equivalent.
+
+\begin{remark}[Why $\M\to\Pm$ is too strong]\label{rem:too-strong}
+Label cover is NP-complete, so (unless $\mathrm P=\mathrm{NP}$) no relaxation that can be checked in polynomial time solves it. For promise CSPs, however, much less is needed. In Section~\ref{sec:pcsp} we translate an instance $\bI$ of $\PCSP(\bA,\bB)$ into a label cover instance $\Sigma_{\bI}$ of a special shape, and the relaxation then only needs to be correct on instances of this shape, and only up to the promise: an accepted instance must map to $\bB$, but not necessarily to $\bA$. Under these weaker demands the condition $\M\to\Pm$ becomes $\M\to\Pol(\bA,\bB)$.
+
+This is a real weakening. A homomorphism $h\colon\bA\to\bB$ gives a minion homomorphism $\Pm\to\Pol(\bA,\bB)$, sending $x\in X$ to $a\mapsto h(a(x))$, so $\M\to\Pm$ implies $\M\to\Pol(\bA,\bB)$ for every template. The converse fails badly, since $\Pol(\bA,\bB)$ may contain symmetric elements of arity at least $2$, which $\Pm$ never does (Remark~\ref{rem:identities}). For instance, $\min$ is a symmetric binary polymorphism of the Horn structure $\mathbf C$ of Example~\ref{ex:horn}, so the minion $\Pol(\mathbf C)$ maps to $\Pol(\mathbf C,\mathbf C)$ (by the identity) but not to $\Pm$.
+\end{remark}
+
+%=====================================================================
+\section{Promise CSPs}\label{sec:pcsp}
+
+\subsection{Setting}\label{sec:setting}
+
+A \emph{PCSP template} is a pair $(\bA,\bB)$ of finite $\tau$-structures with $\bA\to\bB$. Given a finite $\tau$-structure $\bI$, the problem $\PCSP(\bA,\bB)$ asks us to
+\begin{itemize}
+  \item accept if $\bI\to\bA$, and
+  \item reject if $\bI\not\to\bB$.
+\end{itemize}
+The two cases are disjoint, since $\bI\to\bA\to\bB$ gives $\bI\to\bB$, and on instances in neither case, any answer is allowed. For $\bA=\bB$ this is just $\CSP(\bA)$.
+
+\begin{example}[1-in-3 versus NAE]\label{ex:1in3}
+Let $\OIT$ and $\NAE$ be the structures on $\{0,1\}$ with a single ternary relation, given by
+\[
+R^{\OIT}=\{(1,0,0),(0,1,0),(0,0,1)\}\qquad\text{and}\qquad R^{\NAE}=\{0,1\}^3\setminus\{(0,0,0),(1,1,1)\}.
+\]
+The identity map is a homomorphism $\OIT\to\NAE$, since a tuple with a single $1$ is not constant. Both $\CSP(\OIT)$ (positive 1-in-3-SAT) and $\CSP(\NAE)$ (2-colouring of $3$-uniform hypergraphs) are NP-complete, but an algorithm for $\PCSP(\OIT,\NAE)$ only has to tell instances with a 1-in-3 assignment apart from instances without a not-all-equal one. In this standard example of \cite{BBKO}, the affine integer relaxation succeeds (Example~\ref{ex:1in3-aip}) and the basic LP relaxation fails (Example~\ref{ex:1in3-blp}).
+\end{example}
+
+We assume that $A$ is nonempty and that $R^{\bA}\neq\varnothing$ for every $R\in\tau$. Little is lost by this. If $A=\varnothing$, only the empty instance maps to $\bA$. If $R^{\bA}=\varnothing$, an instance containing an $R$-tuple does not map to $\bA$ and may be rejected, while deleting $R$ from both structures leaves $\Pol(\bA,\bB)$ unchanged (preserving $R$ is then vacuous, since $R^{\bA^X}=\varnothing$).
+
+The assumption is needed, however: otherwise the instance $\Sigma_{\bI}$ below could have empty label sets, and the free structure of Section~\ref{sec:free} would require $\M(\varnothing)$.
+
+A \emph{constraint} of $\bI$ is a pair $c=(\mathbf v,R)$ with $R\in\tau$ of arity $k$ and $\mathbf v=(v_1,\dots,v_k)\in R^{\bI}$. For $R$ of arity $k$ and $i\in[k]$, we write $\pr_i\colon R^{\bA}\to A$ for the $i$-th projection, $\pr_i(r)=r_i$.
+
+\subsection{From PCSP instances to label cover}
+
+\begin{definition}\label{def:sigma-I}
+For an instance $\bI$, the label cover instance $\Sigma_{\bI}$ has
+\begin{itemize}
+  \item a variable $v$ for every element $v\in I$, with label set $D_v=A$;
+  \item a variable $c$ for every constraint $c=(\mathbf v,R)$ of $\bI$, with label set $D_c=R^{\bA}$;
+  \item the constraint $(v_i,c,\pr_i)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and every $i\in[k]$.
+\end{itemize}
+\end{definition}
+
+The variable $c$ is labelled by a tuple of $R^{\bA}$, and the constraints force the coordinates of this tuple to be the labels of $v_1,\dots,v_k$, as in Example~\ref{ex:binary}. Since $\bA$ is fixed, $\Sigma_{\bI}$ can be computed from $\bI$ in logarithmic space.
+
+\begin{lemma}\label{lem:sigma-sol}
+$\Sigma_{\bI}$ has a solution if and only if $\bI\to\bA$.
+\end{lemma}
+
+\begin{proof}
+If $(a_x)$ is a solution and $c=((v_1,\dots,v_k),R)$ is a constraint of $\bI$, then $a_c\in R^{\bA}$ and $\pr_i(a_c)=a_{v_i}$ for every $i$, so $(a_{v_1},\dots,a_{v_k})=a_c\in R^{\bA}$, and hence $v\mapsto a_v$ is a homomorphism.
+
+Conversely, a homomorphism $h\colon\bI\to\bA$ gives the solution $a_v=h(v)$, $a_c=(h(v_1),\dots,h(v_k))$.
+\end{proof}
+
+In particular, if $\bI\to\bA$ then $\Sigma_{\bI}$ has a solution, and if $\bI\not\to\bB$ then also $\bI\not\to\bA$, so $\Sigma_{\bI}$ has none.
+
+\begin{example}\label{ex:K2}
+Let $\bA=K_2$, with $E^{\bA}=\{(0,1),(1,0)\}$. If $\bI$ is a single edge $(u,w)$, then $\Sigma_{\bI}$ has variables $u$ and $w$ with labels $\{0,1\}$, a variable $c$ with labels $E^{\bA}$, and the constraints $(u,c,\pr_1)$ and $(w,c,\pr_2)$, and its two solutions are the two homomorphisms. If instead $\bI$ is a single vertex $w$ with a loop, the constraints $(w,c,\pr_1)$ and $(w,c,\pr_2)$ force $\pr_1(a_c)=\pr_2(a_c)$, which no pair in $E^{\bA}$ satisfies.
+\end{example}
+
+\subsection{Free structures}\label{sec:free}
+
+\begin{definition}[Free structure]\label{def:free}
+Let $\M$ be a minion. The \emph{free structure} $\bF_\M(\bA)$ is the $\tau$-structure with domain $\M(A)$ in which, for $R$ of arity $k$, $(f_1,\dots,f_k)\in R^{\bF_\M(\bA)}$ if and only if there exists $g\in\M(R^{\bA})$ such that
+\[
+\M(\pr_i)(g)=f_i\quad\text{for every } i\in[k].
+\]
+\end{definition}
+
+One may think of $g$ as an ``$\M$-generalised tuple of $R^{\bA}$'' and of $f_1,\dots,f_k$ as its coordinates. For $\M=\Pm$ the witnesses are ordinary tuples, so $\bF_\Pm(\bA)=\bA$, but $\bF_\M(\bA)$ is usually infinite.
+
+\begin{lemma}\label{lem:free-sol}
+$\Sigma_{\bI}$ has an $\M$-solution if and only if $\bI\to\bF_\M(\bA)$.
+\end{lemma}
+
+\begin{proof}
+An $\M$-solution consists of elements $p_v\in\M(A)$ for $v\in I$ and $p_c\in\M(R^{\bA})$ for each constraint $c=((v_1,\dots,v_k),R)$, with $\M(\pr_i)(p_c)=p_{v_i}$ for every $i$. This says that $p_c$ witnesses $(p_{v_1},\dots,p_{v_k})\in R^{\bF_\M(\bA)}$. So the $p_v$ form a homomorphism $\bI\to\bF_\M(\bA)$, and conversely every homomorphism arises in this way, by choosing a witness $p_c$ for each constraint.
+\end{proof}
+
+For $\M=\Pm$ this is just Lemma~\ref{lem:sigma-sol}.
+
+\subsection{The characterisation}
+
+\begin{definition}
+The \emph{$\M$-relaxation of $\PCSP(\bA,\bB)$} accepts $\bI$ if $\Sigma_{\bI}$ has an $\M$-solution, and rejects it otherwise. It \emph{solves} $\PCSP(\bA,\bB)$ if, for every finite $\tau$-structure $\bI$,
+\[
+\Solm{\M}(\Sigma_{\bI})\neq\varnothing\quad\Longrightarrow\quad\bI\to\bB.
+\]
+\end{definition}
+
+The other half of correctness is automatic: if $\bI\to\bA$, then $\Sigma_{\bI}$ has a solution (Lemma~\ref{lem:sigma-sol}), hence an $\M$-solution (Theorem~\ref{thm:complete}), so $\bI$ is accepted. Thus the $\M$-relaxation solves $\PCSP(\bA,\bB)$ precisely when it is a correct algorithm for it.
+
+In the proof of Theorem~\ref{thm:pcsp} we use the compactness theorem for homomorphisms, a standard consequence of the compactness theorem of propositional logic (for graph colourings, it is the theorem of de Bruijn and Erdős \cite{dBE}).
+
+\begin{lemma}[Compactness]\label{lem:compactness}
+Let $\bB$ be a finite $\tau$-structure. A possibly infinite $\tau$-structure $\mathbf S$ maps to $\bB$ if and only if every finite substructure of $\mathbf S$ maps to $\bB$.
+\end{lemma}
+
+\begin{remark}\label{rem:choice}
+For countable $\mathbf S$ no choice is needed, as König's lemma suffices (enumerate $\mathbf S$ and order $B$; the homomorphisms from the substructures on the first $n$ elements form a finitely branching tree, and the ordering allows a canonical choice of branch).
+
+For uncountable $\mathbf S$ some choice is needed. Over ZF, the lemma for all finite $\bB$ is equivalent to the Boolean prime ideal theorem, which is weaker than the axiom of choice, and already the case $\bB=K_3$ is equivalent to it (Läuchli \cite{Lau}). For a fixed $\bB$ the lemma can be weaker: for $\bB=K_2$ it amounts to choice for families of two-element sets, and for $\bB$ of width one (that is, when arc consistency solves $\CSP(\bB)$) it holds in ZF; see Rorabaugh, Tardif and Wehlau \cite{RTW} for how the strength depends on $\bB$.
+
+In our applications $\mathbf S=\bF_\M(\bA)$, which is countable whenever $\M(A)$ is (as for all minions of Section~\ref{sec:app}).
+\end{remark}
+
+Free structures and the equivalence of (ii) and (iii) below are due to Barto, Bulín, Krokhin and Opršal \cite{BBKO}, who treat (i) for the relaxations of Section~\ref{sec:app}; for an arbitrary minion, the $\M$-relaxation is the ``minion test'' of Ciardo and Živný \cite{CZ-CLAP,CZ-tensors}.
+
+\begin{theorem}\label{thm:pcsp}
+Let $(\bA,\bB)$ be a PCSP template and $\M$ a minion. The following are equivalent:
+\begin{enumerate}[label=(\roman*)]
+  \item the $\M$-relaxation solves $\PCSP(\bA,\bB)$;
+  \item $\bF_\M(\bA)\to\bB$;
+  \item there is a minion homomorphism $\M\to\Pol(\bA,\bB)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(ii)$\Rightarrow$(i). If $\Sigma_{\bI}$ has an $\M$-solution, then $\bI\to\bF_\M(\bA)\to\bB$ by Lemma~\ref{lem:free-sol}.
+
+(i)$\Rightarrow$(ii). Let $\bF$ be a finite substructure of $\bF_\M(\bA)$. The inclusion $\bF\to\bF_\M(\bA)$ shows that $\Sigma_{\bF}$ has an $\M$-solution (Lemma~\ref{lem:free-sol}), so $\bF\to\bB$ by (i), and Lemma~\ref{lem:compactness} gives $\bF_\M(\bA)\to\bB$.
+
+(ii)$\Rightarrow$(iii). Let $h\colon\bF_\M(\bA)\to\bB$ be a homomorphism, and let $p\in\M(X)$. An element $a\in A^X$ is a function $X\to A$, so $\M(a)(p)$ lies in $\M(A)$, and we define
+\[
+\xi_X(p)\colon A^X\to B,\qquad\xi_X(p)(a)=h\big(\M(a)(p)\big).
+\]
+
+\emph{$\xi_X(p)$ is a polymorphism.} Let $(a_1,\dots,a_k)\in R^{\bA^X}$. By the definition of powers, $\gamma(x)=(a_1(x),\dots,a_k(x))$ defines a function $\gamma\colon X\to R^{\bA}$ with $\pr_i\circ\gamma=a_i$ for every $i$. Put $g=\M(\gamma)(p)\in\M(R^{\bA})$. Then $\M(\pr_i)(g)=\M(\pr_i\circ\gamma)(p)=\M(a_i)(p)$, so $g$ witnesses
+\[
+\big(\M(a_1)(p),\dots,\M(a_k)(p)\big)\in R^{\bF_\M(\bA)},
+\]
+and applying $h$ gives $\big(\xi_X(p)(a_1),\dots,\xi_X(p)(a_k)\big)\in R^{\bB}$.
+
+\emph{$\xi$ is natural.} For $\pi\colon X\to Y$ and $y\in A^Y$,
+\[
+\xi_Y\big(\M(\pi)(p)\big)(y)=h\big(\M(y\circ\pi)(p)\big)=\xi_X(p)(y\circ\pi),
+\]
+which is the minor of $\xi_X(p)$ along $\pi$, evaluated at $y$.
+
+(iii)$\Rightarrow$(ii). Let $\xi\colon\M\to\Pol(\bA,\bB)$ be a minion homomorphism, and define
+\[
+h\colon\M(A)\to B,\qquad h(f)=\xi_A(f)(\id_A),
+\]
+evaluating the polymorphism $\xi_A(f)\colon\bA^A\to\bB$ at $\id_A\in A^A$. To see that $h$ is a homomorphism, let $(f_1,\dots,f_k)$ be in $R^{\bF_\M(\bA)}$, witnessed by $g\in\M(R^{\bA})$. Since $\xi$ commutes with minors, $\xi_A(f_i)$ is the minor of $\xi_{R^{\bA}}(g)$ along $\pr_i$, so
+\[
+h(f_i)=\xi_{R^{\bA}}(g)(\id_A\circ\pr_i)=\xi_{R^{\bA}}(g)(\pr_i).
+\]
+Now regard the projections $\pr_1,\dots,\pr_k$ as elements of $A^{R^{\bA}}$. For each coordinate $r\in R^{\bA}$ the tuple $(\pr_1(r),\dots,\pr_k(r))$ is just $r$, so $(\pr_1,\dots,\pr_k)$ lies in the relation $R$ of the power $\bA^{R^{\bA}}$, and since $\xi_{R^{\bA}}(g)$ is a polymorphism, $(h(f_1),\dots,h(f_k))\in R^{\bB}$.
+\end{proof}
+
+\begin{remark}[Free structures are sandwiches]\label{rem:sandwich}
+A minion homomorphism $\xi\colon\M\to\N$ gives a homomorphism $\xi_A\colon\bF_\M(\bA)\to\bF_\N(\bA)$, since by naturality $\xi_{R^{\bA}}$ sends witnesses to witnesses. Applied to $\Pm\to\M$ (Lemma~\ref{lem:proj-hom}) this gives $\bA=\bF_\Pm(\bA)\to\bF_\M(\bA)$.
+
+If the $\M$-relaxation solves $\PCSP(\bA,\bB)$, we thus have $\bA\to\bF_\M(\bA)\to\bB$, and by Lemma~\ref{lem:free-sol} the problem $\CSP(\bF_\M(\bA))$ is decided by the $\M$-relaxation itself. Every relaxation that solves a template thus exhibits a (usually infinite) structure sandwiched between $\bA$ and $\bB$ whose CSP it solves. For arc consistency, $\bF_\Hm(\bA)$ is the power structure of Feder and Vardi \cite{FV}.
+\end{remark}
+
+%=====================================================================
+\section{Applications}\label{sec:app}
+
+\subsection{The recipe}\label{sec:recipe}
+
+\noindent\begin{minipage}{\linewidth}
+Theorem~\ref{thm:pcsp} turns the question ``does this algorithm solve $\PCSP(\bA,\bB)$?'' into a question about polymorphisms. To answer it concretely, we
+\begin{enumerate}[label=(\arabic*)]
+  \item find a minion $\M$ such that the algorithm accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\M$-solution;
+  \item find \emph{generic} elements of $\M$, such that every instance with an $\M$-solution has one consisting of minors of a single generic element;
+  \item determine which minor identities these generic elements satisfy.
+\end{enumerate}
+\end{minipage}
+
+The algorithm then solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ has elements satisfying the same identities. We first prove this in general, and then apply it to four algorithms.
+
+\begin{definition}\label{def:identities}
+Let $g\in\M(X)$ and $f\in\N(X)$. We say that $f$ \emph{satisfies the identities of} $g$ if, for every finite set $D$ and all functions $\pi,\pi'\colon X\to D$,
+\[
+\M(\pi)(g)=\M(\pi')(g)\quad\Longrightarrow\quad\N(\pi)(f)=\N(\pi')(f).
+\]
+\end{definition}
+
+If $\xi\colon\M\to\N$ is a minion homomorphism, then $\xi_X(g)$ satisfies the identities of $g$, since $\N(\pi)(\xi_X(g))=\xi_D(\M(\pi)(g))$.
+
+\begin{theorem}[Generic elements]\label{thm:generic}
+Let $\M$ be a minion and, for each $j$ in an index set $J$, let $g_j\in\M(X_j)$. Assume
+\begin{enumerate}
+  \item[(G)] every label cover instance that has an $\M$-solution has one in which all entries are minors of a single $g_j$.
+\end{enumerate}
+Then the $\M$-relaxation solves $\PCSP(\bA,\bB)$ if and only if for every $j\in J$ there is some $f_j\in\Pol(\bA,\bB)(X_j)$ satisfying the identities of $g_j$.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) Take $f_j=\xi_{X_j}(g_j)$ for a minion homomorphism $\xi\colon\M\to\Pol(\bA,\bB)$, which exists by Theorem~\ref{thm:pcsp}.
+
+($\Leftarrow$) Suppose $\Sigma_{\bI}$ has an $\M$-solution. By (G) it has one of the form $p_x=\M(\pi_x)(g_j)$, for some $j$ and some functions $\pi_x\colon X_j\to D_x$. Writing $\Pol$ for $\Pol(\bA,\bB)$, put $f_x=\Pol(\pi_x)(f_j)$. For a constraint $(x,y,\alpha)$ we have $\M(\alpha\circ\pi_y)(g_j)=\M(\alpha)(p_y)=p_x=\M(\pi_x)(g_j)$, so, as $f_j$ satisfies the identities of $g_j$,
+\[
+\Pol(\alpha)(f_y)=\Pol(\alpha\circ\pi_y)(f_j)=\Pol(\pi_x)(f_j)=f_x.
+\]
+Thus $(f_x)$ is a $\Pol(\bA,\bB)$-solution of $\Sigma_{\bI}$. Applying Theorem~\ref{thm:pcsp} to the minion $\Pol(\bA,\bB)$ (which is nonempty by Remark~\ref{rem:nonempty}) and its identity homomorphism, the $\Pol(\bA,\bB)$-relaxation solves $\PCSP(\bA,\bB)$, so $\bI\to\bB$.
+\end{proof}
+
+For each algorithm below we check (G) and identify the functions satisfying the identities of the generic elements. Recall that for an $n$-ary polymorphism $f$ and $\pi\colon[n]\to D$, the minor $\Pol(\bA,\bB)(\pi)(f)$ is the function $y\mapsto f(y\circ\pi)=f(y(\pi(1)),\dots,y(\pi(n)))$ on $A^D$.
+
+%---------------------------------------------------------------------
+\subsection{Arc consistency}\label{sec:ac}
+
+Recall the minion $\Hm$ of Example~\ref{ex:minions}: $\Hm(X)$ is the set of nonempty subsets of $X$, and $\Hm(\pi)(S)=\pi[S]$. An $\Hm$-solution of $\Sigma_{\bI}$ consists of nonempty sets $p_v\subseteq A$ for $v\in I$ and $p_c\subseteq R^{\bA}$ for each constraint $c=((v_1,\dots,v_k),R)$, with $\pr_i[p_c]=p_{v_i}$ for all $c$ and $i$. In words, every tuple allowed for $c$ has its $i$-th coordinate allowed for $v_i$, and every value allowed for $v_i$ occurs as the $i$-th coordinate of some tuple allowed for $c$. Such a system is called \emph{arc consistent}.
+
+\noindent\begin{minipage}{\linewidth}
+The \emph{arc consistency} algorithm runs as follows.
+\begin{algorithmic}[1]
+  \State put $p_v=A$ for every $v\in I$, and $p_c=R^{\bA}$ for every constraint $c=(\mathbf v,R)$ of $\bI$
+  \Repeat
+    \For{every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$}
+      \For{every $r\in p_c$}
+        \State remove $r$ from $p_c$ if $r_i\notin p_{v_i}$ for some $i\in[k]$\label{line:ac-tuple}
+      \EndFor
+      \For{every $i\in[k]$ and every $a\in p_{v_i}$}
+        \State remove $a$ from $p_{v_i}$ if $r_i\neq a$ for every $r\in p_c$\label{line:ac-value}
+      \EndFor
+    \EndFor
+  \Until{nothing was removed during the last pass}
+  \State accept if all the sets $p_v$ and $p_c$ are nonempty, and reject otherwise
+\end{algorithmic}
+\end{minipage}
+
+Line~\ref{line:ac-tuple} removes the tuples that do not fit the values allowed for their coordinates, and line~\ref{line:ac-value} removes the values that occur in no allowed tuple. Every pass except the last removes at least one element from one of the sets, and there are only polynomially many elements in total, so the algorithm runs in polynomial time.
+
+\begin{proposition}\label{prop:ac}
+Arc consistency accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\Hm$-solution.
+\end{proposition}
+
+\begin{proof}
+In the last pass nothing is removed, so for every constraint $c$ and every $i$, line~\ref{line:ac-tuple} gives $\pr_i[p_c]\subseteq p_{v_i}$ and line~\ref{line:ac-value} gives $p_{v_i}\subseteq\pr_i[p_c]$. Hence nonempty final sets form an $\Hm$-solution.
+
+Conversely, if $(q_x)$ is an $\Hm$-solution, then $q_x\subseteq p_x$ holds at the start and is preserved by every removal. Indeed, a tuple $r\in q_c$ has $r_i\in q_{v_i}\subseteq p_{v_i}$ for every $i$, so it is not removed in line~\ref{line:ac-tuple}, and a value $a\in q_{v_i}=\pr_i[q_c]$ equals $r_i$ for some $r\in q_c\subseteq p_c$, so it is not removed in line~\ref{line:ac-value}. The final sets therefore contain the nonempty sets $q_x$.
+\end{proof}
+
+\begin{definition}
+A function $f\colon A^n\to B$ is \emph{totally symmetric} if $f(x_1,\dots,x_n)=f(y_1,\dots,y_n)$ whenever $\{x_1,\dots,x_n\}=\{y_1,\dots,y_n\}$.
+\end{definition}
+
+\begin{lemma}\label{lem:gen-H}
+For $\Hm$ with generic elements $g_n=[n]\in\Hm([n])$, condition (G) holds, and an $n$-ary polymorphism satisfies the identities of $g_n$ if and only if it is totally symmetric.
+\end{lemma}
+
+\begin{proof}
+For (G), take $n$ at least the size of every set in a given $\Hm$-solution; a set $S\subseteq D$ with $|S|\leq n$ equals $\pi[[n]]$ for any $\pi\colon[n]\to D$ with image $S$.
+
+Next, $\Hm(\pi)(g_n)=\Hm(\pi')(g_n)$ means that $\pi$ and $\pi'$ have the same image. If $f$ is totally symmetric and $\pi,\pi'$ have the same image, then $y\circ\pi$ and $y\circ\pi'$ have the same set of entries, so $f(y\circ\pi)=f(y\circ\pi')$. Conversely, if $x,x'\in A^n$ have the same set of entries, then the identity for $\pi=x$ and $\pi'=x'$ (regarded as maps $[n]\to A$), evaluated at $y=\id_A$, gives $f(x)=f(x')$.
+\end{proof}
+
+The following theorem is from \cite{BBKO}. For CSPs, where (i) says that $\bA$ has width one, it goes back to Feder and Vardi \cite{FV} and Dalmau and Pearson \cite{DP}.
+
+\begin{theorem}\label{thm:ac}
+Let $n_{\bA}$ be the largest of $|A|$ and the sizes $|R^{\bA}|$ for $R\in\tau$. The following are equivalent:
+\begin{enumerate}[label=(\roman*)]
+  \item arc consistency solves $\PCSP(\bA,\bB)$;
+  \item $\Pol(\bA,\bB)$ contains totally symmetric polymorphisms of all arities;
+  \item $\Pol(\bA,\bB)$ contains a totally symmetric polymorphism of arity $n_{\bA}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i)$\Leftrightarrow$(ii) follows from Proposition~\ref{prop:ac}, Theorem~\ref{thm:generic} and Lemma~\ref{lem:gen-H}, and (ii)$\Rightarrow$(iii) is clear.
+
+(iii)$\Rightarrow$(i). Let $f$ be totally symmetric of arity $n=n_{\bA}$. By Theorem~\ref{thm:pcsp} it suffices to find a homomorphism $h\colon\bF_\Hm(\bA)\to\bB$, and this structure is finite (its elements are the nonempty subsets of $A$). For such a set $S$, list its elements with repetitions as $s_1,\dots,s_n$ and put $h(S)=f(s_1,\dots,s_n)$, which does not depend on the listing. If $(S_1,\dots,S_k)\in R^{\bF_\Hm(\bA)}$ is witnessed by $T\subseteq R^{\bA}$, list $T$ with repetitions as $t_1,\dots,t_n$. Then $t_1(i),\dots,t_n(i)$ lists $S_i=\pr_i[T]$, so $h(S_i)=f(t_1(i),\dots,t_n(i))$, and since every column $(t_j(1),\dots,t_j(k))=t_j$ lies in $R^{\bA}$, we get $(h(S_1),\dots,h(S_k))\in R^{\bB}$.
+\end{proof}
+
+%---------------------------------------------------------------------
+\subsection{The basic LP relaxation}\label{sec:blp}
+
+\begin{definition}
+The minion $\Qc$ consists of the rational probability distributions, with pushforward as minor:
+\[
+\Qc(X)=\Big\{q\colon X\to\Q_{\geq0} : \sum_{x\in X}q(x)=1\Big\},\qquad\Qc(\pi)(q)(y)=\sum_{x\in X,\ \pi(x)=y}q(x).
+\]
+\end{definition}
+
+Here an empty sum is $0$, so a point $y\in Y$ outside the image of $\pi$ receives weight $0$. Since every $x\in X$ contributes to a single $y$ (namely $\pi(x)$), the pushforward again has total weight $1$. For example, if $q=(\tfrac13,\tfrac23)$ on $\{1,2\}$ and $\pi$ maps both points to $a\in\{a,b,c\}$, then $\Qc(\pi)(q)$ gives weight $1$ to $a$ and $0$ to $b$ and $c$. In terms of convex combinations, the variables outside the image of $\pi$ are dummy variables of the minor, with coefficient $0$.
+
+The \emph{basic LP relaxation} (BLP) of an instance $\bI$ is the following system. Its unknowns are a number $\mu_v(a)$ for every $v\in I$ and $a\in A$, and a number $\mu_c(r)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and every $r\in R^{\bA}$, subject to
+\begin{gather*}
+\mu_v(a)\geq0,\qquad\mu_c(r)\geq0,\qquad\sum_{a\in A}\mu_v(a)=1\quad\text{for every } v\in I,\\
+\sum_{r\in R^{\bA},\ r_i=a}\mu_c(r)=\mu_{v_i}(a)\quad\text{for every } c=((v_1,\dots,v_k),R),\ i\in[k] \text{ and } a\in A.
+\end{gather*}
+Thus $\mu_v$ is a probability distribution on $A$ for each element $v$, and $\mu_c$ is a distribution on $R^{\bA}$ for each constraint $c$, whose $i$-th marginal is $\mu_{v_i}$ (that $\mu_c$ has total weight $1$ follows by summing a marginal equation over $a$). The left-hand side of the marginal equation is $\Qc(\pr_i)(\mu_c)(a)$, so the feasible points of the BLP with rational values are the $\Qc$-solutions of $\Sigma_{\bI}$, with $p_v=\mu_v$ and $p_c=\mu_c$.
+
+The algorithm BLP accepts $\bI$ if this system is feasible, which linear programming decides in polynomial time. The system has rational coefficients, so it is feasible over $\mathbb R$ if and only if it is feasible over $\Q$, and hence BLP accepts $\bI$ if and only if $\Sigma_{\bI}$ has a $\Qc$-solution.
+
+\begin{definition}
+A function $f\colon A^n\to B$ is \emph{symmetric} if $f(x_{\sigma(1)},\dots,x_{\sigma(n)})=f(x_1,\dots,x_n)$ for every permutation $\sigma$ of $[n]$.
+\end{definition}
+
+\begin{lemma}\label{lem:gen-Q}
+For $\Qc$ with generic elements the uniform distributions $u_n\in\Qc([n])$, condition (G) holds, and an $n$-ary polymorphism satisfies the identities of $u_n$ if and only if it is symmetric.
+\end{lemma}
+
+\begin{proof}
+For (G), let $n$ be a common denominator of all values of a given $\Qc$-solution. A distribution $q$ on $D$ with denominator $n$ equals $\Qc(\pi)(u_n)$ for any $\pi\colon[n]\to D$ taking each value $d$ exactly $n\,q(d)$ times.
+
+Next, $\Qc(\pi)(u_n)=\Qc(\pi')(u_n)$ means that $\pi$ and $\pi'$ take each value equally often, that is, $\pi'=\pi\circ\sigma$ for some permutation $\sigma$ of $[n]$. If $f$ is symmetric, then $\Pol(\bA,\bB)(\sigma)(f)=f$, and hence $\Pol(\bA,\bB)(\pi\circ\sigma)(f)=\Pol(\bA,\bB)(\pi)(f)$. Conversely, the identity for $\pi=\id_{[n]}$ and $\pi'=\sigma$ says that $f$ is invariant under $\sigma$.
+\end{proof}
+
+The following theorem is from \cite{BBKO}; for CSPs it is due to Kun, O'Donnell, Tamaki, Yoshida and Zhou \cite{KOTYZ}.
+
+\begin{theorem}\label{thm:blp}
+BLP solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ contains symmetric polymorphisms of all arities.
+\end{theorem}
+
+\begin{proof}
+Combine Theorem~\ref{thm:generic} with Lemma~\ref{lem:gen-Q}.
+\end{proof}
+
+\begin{example}[The triangle]\label{ex:triangle}
+Let $\bA=K_2$ as in Example~\ref{ex:K2}, and let $\bI$ be the triangle $K_3$, with an edge in both directions between any two of its three vertices. Taking every $\mu_v$ uniform on $\{0,1\}$ and every $\mu_c$ uniform on $E^{\bA}=\{(0,1),(1,0)\}$ satisfies all the equations, since both marginals of $\mu_c$ are uniform. So BLP accepts the triangle, although it is not $2$-colourable. Theorem~\ref{thm:blp} explains why: $K_2$ has no binary symmetric polymorphism $f$, since the rows $(0,1)$ and $(1,0)$ have both columns in $E^{\bA}$, which forces $f(0,1)\neq f(1,0)$.
+\end{example}
+
+\begin{example}[1-in-3 versus NAE]\label{ex:1in3-blp}
+BLP does not solve $\PCSP(\OIT,\NAE)$, since there is no symmetric ternary polymorphism $f$. Indeed, the rows $(1,0,0)$, $(0,1,0)$, $(0,0,1)$ have all their columns in $R^{\OIT}$, so $f(1,0,0)$, $f(0,1,0)$, $f(0,0,1)$ are not all equal, whereas symmetry makes them equal.
+
+We can also see the failure on the free structure. Identify a distribution $q$ on $\{0,1\}$ with $q(1)$, and write $e_i$ for the tuple of $R^{\OIT}$ with its $1$ at position $i$. The $i$-th marginal of a distribution $g$ on $R^{\OIT}$ is then $g(e_i)$, so
+\[
+\bF_{\Qc}(\OIT)\cong\big(\Q\cap[0,1];\ \{(x,y,z) : x+y+z=1\}\big).
+\]
+This structure contains the constant tuple $(\tfrac13,\tfrac13,\tfrac13)$, so it does not map to $\NAE$, in accordance with Theorem~\ref{thm:pcsp}.
+\end{example}
+
+%---------------------------------------------------------------------
+\subsection{The affine integer relaxation}\label{sec:aip}
+
+\begin{definition}
+The minion $\Za$ is given by
+\[
+\Za(X)=\Big\{z\colon X\to\Z : \sum_{x\in X}z(x)=1\Big\},\qquad\Za(\pi)(z)(y)=\sum_{x\in X,\ \pi(x)=y}z(x).
+\]
+\end{definition}
+
+As for $\Qc$, an empty sum is $0$, so points outside the image of $\pi$ receive weight $0$, and the total weight $1$ is preserved. Unlike for $\Qc$, a point in the image may also receive weight $0$, when contributions $+1$ and $-1$ cancel.
+
+The \emph{affine integer relaxation} (AIP) of $\bI$ is the BLP of $\bI$ without the inequalities $\mu_v(a)\geq0$ and $\mu_c(r)\geq0$, to be solved in integers. The algorithm AIP accepts $\bI$ if this system has an integer solution, which can be decided in polynomial time (for instance via the Hermite normal form). As for BLP, the integer solutions are the $\Za$-solutions of $\Sigma_{\bI}$, so AIP accepts $\bI$ if and only if $\Sigma_{\bI}$ has a $\Za$-solution.
+
+\begin{definition}
+A function $f\colon A^{2L+1}\to B$ is \emph{alternating} if
+\begin{itemize}
+  \item $f(x_{\sigma(1)},\dots,x_{\sigma(2L+1)})=f(x_1,\dots,x_{2L+1})$ for every permutation $\sigma$ of $[2L+1]$ that maps odd numbers to odd numbers, and
+  \item $f(x_1,\dots,x_{2L-1},y,y)=f(x_1,\dots,x_{2L-1},y',y')$ for all $x_1,\dots,x_{2L-1},y,y'\in A$.
+\end{itemize}
+\end{definition}
+
+The prototype is the alternating sum $x_1-x_2+x_3-\dots+x_{2L+1}$ in an abelian group: it is invariant under parity-preserving permutations, and replacing an equal pair at an even and an odd position by another equal pair does not change its value.
+
+\begin{lemma}\label{lem:gen-Z}
+For $L\geq1$, let $a_L\in\Za([2L+1])$ be given by $a_L(i)=1$ for odd $i$ and $a_L(i)=-1$ for even $i$. With these generic elements, condition (G) holds for $\Za$, and a $(2L+1)$-ary polymorphism satisfies the identities of $a_L$ if and only if it is alternating.
+\end{lemma}
+
+\begin{proof}
+\emph{Notation.} We view a multiset on $D$ as a function $D\to\Z_{\geq0}$ giving the multiplicity of each element, so that multisets can be added and subtracted pointwise. The size of a multiset is the sum of its multiplicities, written with $|\cdot|$, and $\delta_d$ is the multiset $\{d\}$. For $\pi\colon[2L+1]\to D$, let $\pi^+$ be the multiset of the values $\pi(i)$ at odd positions $i$, and $\pi^-$ the multiset of the values at even positions, so that $|\pi^+|=L+1$ and $|\pi^-|=L$. Each odd position contributes $+1$ and each even position $-1$ to the point it is sent to, so
+\[
+\Za(\pi)(a_L)=\pi^+-\pi^-.
+\]
+Every $z\in\Za(D)$ can be written uniquely as $z=z^+-z^-$ with multisets $z^+$ and $z^-$ having no element in common, and since $z$ has total weight $1$, we have $|z^+|=|z^-|+1$.
+
+\emph{Condition (G).} Let $z\in\Za(D)$ and $L\geq|z^-|$. Fix $d_0\in D$, put $m=L-|z^-|$, and choose $\pi$ with
+\[
+\pi^+=z^++m\,\delta_{d_0}\qquad\text{and}\qquad \pi^-=z^-+m\,\delta_{d_0},
+\]
+which is possible because these multisets have sizes $L+1$ and $L$. The $m$ extra copies of $d_0$ cancel, so $\Za(\pi)(a_L)=z$. Given a $\Za$-solution, we may therefore choose $L\geq1$ with $L\geq|z_x^-|$ for every entry $z_x$, and then all entries are minors of $a_L$, which gives (G).
+
+\emph{Identities imply alternating.} Suppose $f$ satisfies the identities of $a_L$. A permutation $\sigma$ of $[2L+1]$ preserving parity sends odd positions to odd positions, so $\Za(\sigma)(a_L)=a_L=\Za(\id)(a_L)$, and the corresponding identity says $f(y\circ\sigma)=f(y)$. For the second property, let $\rho,\rho'\colon[2L+1]\to[2L+1]$ fix $1,\dots,2L-1$, where $\rho$ sends both $2L$ and $2L+1$ to $2L$ and $\rho'$ sends both to $2L+1$. The contributions $-1$ and $+1$ of positions $2L$ and $2L+1$ cancel, so both pushforwards agree with $a_L$ on $1,\dots,2L-1$ and vanish at $2L$ and $2L+1$. The resulting identity reads
+\[
+f(y_1,\dots,y_{2L-1},y_{2L},y_{2L})=f(y_1,\dots,y_{2L-1},y_{2L+1},y_{2L+1})\quad\text{for all } y\in A^{2L+1}.
+\]
+
+\emph{Alternating implies the identities.} Let $f$ be alternating, and write $f_\pi$ for the minor of $f$ along $\pi$, the function $y\mapsto f(y(\pi(1)),\dots,y(\pi(2L+1)))$ on $A^D$. We show that $f_\pi=f_\pip$ whenever $\pi^+-\pi^-=\pip^+-\pip^-$, in three steps.
+\begin{enumerate}[label=(\alph*)]
+  \item \emph{$f_\pi$ depends only on $(\pi^+,\pi^-)$.} If $\pi^+=\pip^+$ and $\pi^-=\pip^-$, then $\pi'$ is obtained from $\pi$ by rearranging the odd positions among themselves and the even positions among themselves, that is, $\pi'=\pi\circ\sigma$ for a parity-preserving $\sigma$. Hence
+  \[
+  f_\pip(y)=f\big((y\circ\pi)\circ\sigma\big)=f(y\circ\pi)=f_\pi(y).
+  \]
+  \item \emph{Cancelling a common element.} Suppose $d$ occurs in both $\pi^+$ and $\pi^-$, and let $\pi''$ be obtained from $\pi$ by changing one odd and one even occurrence of $d$ into some $e\in D$, so that
+  \[
+  {\pi''}^+=\pi^+-\delta_d+\delta_e\qquad\text{and}\qquad{\pi''}^-=\pi^--\delta_d+\delta_e.
+  \]
+  By (a) we may assume that these occurrences are at positions $2L+1$ and $2L$. Then $f_\pi(y)$ and $f_{\pi''}(y)$ have the same first $2L-1$ arguments, followed by $y(d),y(d)$ and by $y(e),y(e)$ respectively. These agree by the second property, so $f_\pi=f_{\pi''}$.
+  \item \emph{Conclusion.} Let $z=\pi^+-\pi^-=\pip^+-\pip^-$, and let $\kappa$ be the common part of $\pi^+$ and $\pi^-$, that is, $\kappa(d)=\min(\pi^+(d),\pi^-(d))$. Then $\pi^+=z^++\kappa$ and $\pi^-=z^-+\kappa$, and similarly $\pip^+=z^++\kappa'$ and $\pip^-=z^-+\kappa'$, where comparing sizes gives $|\kappa|=|\kappa'|=L-|z^-|$. Applying (b) $|\kappa|$ times, each time replacing one element of $\kappa$ by one element of $\kappa'$, turns $(\pi^+,\pi^-)$ into $(\pip^+,\pip^-)$ without changing the minor, and (a) then gives $f_\pi=f_\pip$.\qedhere
+\end{enumerate}
+\end{proof}
+
+\begin{theorem}[\cite{BBKO}]\label{thm:aip}
+AIP solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ contains an alternating polymorphism of arity $2L+1$ for every $L\geq1$.
+\end{theorem}
+
+\begin{proof}
+Combine Theorem~\ref{thm:generic} with Lemma~\ref{lem:gen-Z}.
+\end{proof}
+
+\begin{example}[1-in-3 versus NAE]\label{ex:1in3-aip}
+AIP solves $\PCSP(\OIT,\NAE)$. For $L\geq1$, let $f$ be the $(2L+1)$-ary operation on $\{0,1\}$ with $f(x)=1$ if $x_1-x_2+x_3-\dots+x_{2L+1}>0$, and $f(x)=0$ otherwise. It is alternating, as the alternating sum is. It is also a polymorphism: if three rows have all their columns in $R^{\OIT}$, then the entries of every column add up to $1$, so the alternating sums $s_1,s_2,s_3$ of the rows are integers with $s_1+s_2+s_3=(L+1)-L=1$. They are therefore neither all positive nor all at most $0$, and the values of $f$ on the three rows are not all equal.
+
+On the free structure, the computation of Example~\ref{ex:1in3-blp} with integers in place of nonnegative rationals gives
+\[
+\bF_{\Za}(\OIT)\cong\big(\Z;\ \{(x,y,z) : x+y+z=1\}\big),
+\]
+and the map sending $x$ to $1$ if $x\geq1$ and to $0$ otherwise is a homomorphism to $\NAE$, since integers adding up to $1$ are neither all at least $1$ nor all at most $0$.
+\end{example}
+
+%---------------------------------------------------------------------
+\subsection{Combining BLP and AIP}\label{sec:ba}
+
+The combined relaxation asks for an integer solution of the AIP that lives inside the support of a fractional solution of the BLP.
+
+\begin{definition}
+The minion $\Mba$ is given by
+\[
+\Mba(X)=\{(q,z)\in\Qc(X)\times\Za(X) : z(x)\neq0\implies q(x)>0\},
+\]
+with minors taken by pushing forward both components.
+\end{definition}
+
+This is closed under minors. Let $(q,z)\in\Mba(X)$, let $\pi\colon X\to Y$, and write $q'=\Qc(\pi)(q)$ and $z'=\Za(\pi)(z)$. If $z'(y)\neq0$, then some $x$ with $\pi(x)=y$ has $z(x)\neq0$, hence $q(x)>0$, and hence $q'(y)\geq q(x)>0$, as $q$ is nonnegative.
+
+The \emph{supports} of a $\Qc$-solution $q=(q_x)_x$ and of a $\Za$-solution $z=(z_x)_x$ of $\Sigma_{\bI}$ are sets of pairs $(x,d)$, consisting of a variable $x$ of $\Sigma_{\bI}$ and a label $d\in D_x$, namely
+\[
+\supp q=\{(x,d) : q_x(d)>0\}\qquad\text{and}\qquad\supp z=\{(x,d) : z_x(d)\neq0\}.
+\]
+Since the minors of $\Mba$ push the two components forward separately, an $\Mba$-solution of $\Sigma_{\bI}$ is just a pair $(q,z)$ of a $\Qc$-solution $q$ and a $\Za$-solution $z$ with $\supp z\subseteq\supp q$. To decide whether there is one, we use the largest possible support of a $\Qc$-solution,
+\[
+S^*=\{(x,d) : q_x(d)>0 \text{ for some } q\in\Solm{\Qc}(\Sigma_{\bI})\}.
+\]
+
+\begin{lemma}\label{lem:max-support}
+If $\Sigma_{\bI}$ has a $\Qc$-solution, then it has one, $q^*$, with $\supp q^*=S^*$.
+\end{lemma}
+
+\begin{proof}
+The set $S^*$ is finite, and it is nonempty because each $q_x$ has total weight $1$. For every $(x,d)\in S^*$ choose a $\Qc$-solution $q^{(x,d)}$ with $q^{(x,d)}_x(d)>0$, and let $q^*$ be the average of these. An average of $\Qc$-solutions is again a $\Qc$-solution, since an average of distributions is a distribution and pushforward is linear. For $(x,d)\in S^*$ we have $q^*_x(d)\geq q^{(x,d)}_x(d)/|S^*|>0$, as all the terms of the average are nonnegative, and for $(x,d)\notin S^*$ every $\Qc$-solution vanishes at $(x,d)$, so $q^*_x(d)=0$.
+\end{proof}
+
+The algorithm BLP+AIP runs as follows.
+\begin{enumerate}[label=(\arabic*)]
+  \item If $\Sigma_{\bI}$ has no $\Qc$-solution (that is, if the BLP of $\bI$ is infeasible), reject.
+  \item Compute a $\Qc$-solution $q^*$ with $\supp q^*=S^*$. For this, solve for each pair $(x,d)$ the linear program maximising $q_x(d)$ subject to the BLP of $\bI$. Then $(x,d)\in S^*$ if and only if the maximum is positive, and the average of the (rational) optimal solutions for the pairs in $S^*$ is such a $q^*$, as in the proof of Lemma~\ref{lem:max-support}.
+  \item Accept if $\Sigma_{\bI}$ has a $\Za$-solution $z$ with $z_x(d)=0$ for every $(x,d)\notin S^*$ (that is, if the AIP of $\bI$ together with these equations has an integer solution), and reject otherwise.
+\end{enumerate}
+Each step takes polynomial time: the first two solve polynomially many linear programs, and the third is an integer system of linear equations, like the AIP.
+
+\begin{proposition}
+BLP+AIP accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\Mba$-solution.
+\end{proposition}
+
+\begin{proof}
+If the algorithm accepts, with $z$ found in step (3), then $\supp z\subseteq S^*=\supp q^*$, so $(q^*,z)$ is an $\Mba$-solution.
+
+Conversely, let $(q,z)$ be an $\Mba$-solution. Then $q$ is a $\Qc$-solution, so step (1) does not reject, and $\supp z\subseteq\supp q\subseteq S^*$, so $z$ is accepted in step (3).
+\end{proof}
+
+\begin{definition}
+A function $f\colon A^{2L+1}\to B$ is \emph{$(L+1,L)$-block-symmetric} if
+\[
+f(x_{\sigma(1)},\dots,x_{\sigma(2L+1)})=f(x_1,\dots,x_{2L+1})
+\]
+for every permutation $\sigma$ of $[2L+1]$ that maps $\{1,\dots,L+1\}$ to itself.
+\end{definition}
+
+\begin{lemma}\label{lem:gen-BA}
+For $L\geq1$, let $b_L\in\Za([2L+1])$ be given by $b_L(i)=1$ for $i\leq L+1$ and $b_L(i)=-1$ for $i>L+1$, and let $g_L=(u_{2L+1},b_L)\in\Mba([2L+1])$. With these generic elements, condition (G) holds for $\Mba$, and a $(2L+1)$-ary polymorphism satisfies the identities of $g_L$ if and only if it is $(L+1,L)$-block-symmetric.
+\end{lemma}
+
+\begin{proof}
+For $\pi\colon[2L+1]\to D$, let $U_\pi$ and $W_\pi$ be the multisets of values of $\pi$ on the first $L+1$ and on the last $L$ coordinates (with multisets viewed as in the proof of Lemma~\ref{lem:gen-Z}). Then $\Mba(\pi)(g_L)=\big((U_\pi+W_\pi)/(2L+1),\,U_\pi-W_\pi\big)$, and this pair determines $U_\pi$ and $W_\pi$. Hence $\Mba(\pi)(g_L)=\Mba(\pi')(g_L)$ if and only if $\pi'=\pi\circ\sigma$ for a permutation $\sigma$ of $[2L+1]$ that maps $\{1,\dots,L+1\}$ to itself. If $f$ is $(L+1,L)$-block-symmetric, then $\Pol(\bA,\bB)(\sigma)(f)=f$ for every such $\sigma$, and so $\Pol(\bA,\bB)(\pi\circ\sigma)(f)=\Pol(\bA,\bB)(\pi)(f)$. Conversely, $\id$ and $\sigma$ give the same minor of $g_L$, and the corresponding identity says that $f$ is invariant under $\sigma$.
+
+For (G), let $(q_x,z_x)$ be an $\Mba$-solution. Its entries need not be minors of any $g_L$: the distribution in a minor of $g_L$ takes values in $\frac1{2L+1}\Z$, so for instance $((\tfrac12,\tfrac12),(1,0))$ is a minor of no $g_L$. We therefore first change the distributions, keeping their supports. Let $n$ be a common denominator of all the $q_x$, let $K$ be an integer larger than all $|z_x(d)|$, and put $L=Kn$ and
+\[
+q'_x=\frac{2L\,q_x+z_x}{2L+1}.
+\]
+Where $q_x(d)>0$ we have $2L\,q_x(d)\geq2K>|z_x(d)|$, and where $q_x(d)=0$ also $z_x(d)=0$. So $q'_x$ is a distribution with the same support as $q_x$, and since $q'_x$ depends linearly on $(q_x,z_x)$, the family $(q'_x,z_x)$ is again an $\Mba$-solution. Each $(q'_x,z_x)$ is a minor of $g_L$: take $\pi$ with $U_\pi=L\,q_x+z_x$ and $W_\pi=L\,q_x$, which are multisets of sizes $L+1$ and $L$.
+\end{proof}
+
+\begin{theorem}[Brakensiek, Guruswami, Wrochna, Živný \cite{BGWZ}]\label{thm:blp-aip}
+BLP+AIP solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ contains an $(L+1,L)$-block-symmetric polymorphism for every $L\geq1$.
+\end{theorem}
+
+\begin{proof}
+Combine Theorem~\ref{thm:generic} with Lemma~\ref{lem:gen-BA}.
+\end{proof}
+
+\begin{remark}[Decidability]
+By Theorem~\ref{thm:ac}(iii), it is decidable whether arc consistency solves $\PCSP(\bA,\bB)$, since only the finitely many functions $A^{n_{\bA}}\to B$ need to be checked. Theorems~\ref{thm:blp}, \ref{thm:aip} and~\ref{thm:blp-aip} have no such clause, and no computable bound on the arities can replace ``all arities'' there: Larrauri \cite{Lar} shows that it is undecidable whether BLP, AIP or BLP+AIP solves a given template, already for $|A|\leq2$ in the first two cases and for $|A|\leq5$ in the third.
+\end{remark}
+
+%---------------------------------------------------------------------
+\subsection{Comparing the relaxations}\label{sec:compare}
+
+If $\M\to\N$ and the $\N$-relaxation solves $\PCSP(\bA,\bB)$, then so does the $\M$-relaxation, since $\M\to\N\to\Pol(\bA,\bB)$. Writing $\supp q=\{x\in X : q(x)>0\}$ for the support of a distribution $q\in\Qc(X)$, there are minion homomorphisms
+\[
+\Qc\to\Hm,\ q\mapsto\supp q,\quad\Mba\to\Qc,\ (q,z)\mapsto q,\quad\Mba\to\Za,\ (q,z)\mapsto z,
+\]
+and $\Pm$ maps to every minion by Lemma~\ref{lem:proj-hom}. This gives the diagram
+\[
+\begin{tikzcd}[row sep=1.6em]
+\Pm\arrow[r] & \Mba\arrow[r]\arrow[d] & \Qc\arrow[r] & \Hm\\
+ & \Za & &
+\end{tikzcd}
+\]
+in which the relaxations get weaker along the arrows. In particular, BLP solves every PCSP that arc consistency solves, and BLP+AIP solves every PCSP that BLP or AIP solves.
+
+On the other hand, $\Qc$ and $\Za$ admit no minion homomorphism in either direction. The symmetric element $(\frac12,\frac12)$ of $\Qc([2])$ would need a symmetric image $z$ in $\Za([2])$ (Remark~\ref{rem:identities}), that is, $2z(1)=1$ in $\Z$.
+
+Conversely, the image $q$ of $a_1=(1,-1,1)$ in $\Qc([3])$ would satisfy the identities of $a_1$. The swap of $1$ and $3$ preserves parity, which gives $q(1)=q(3)$. The maps $\rho,\rho'$ from the proof of Lemma~\ref{lem:gen-Z} (with $L=1$) give the same minor of $a_1$, so $\Qc(\rho)(q)=(q(1),q(2)+q(3),0)$ equals $\Qc(\rho')(q)=(q(1),0,q(2)+q(3))$, and hence $q(2)+q(3)=0$. This forces $q(2)=q(3)=0$ and $q(1)=1\neq q(3)$, a contradiction.
+
+In terms of templates, AIP solves $\PCSP(\OIT,\NAE)$ while BLP does not (Examples~\ref{ex:1in3-aip} and~\ref{ex:1in3-blp}), and the following two examples give a CSP of each kind.
+
+\begin{example}[Horn constraints]\label{ex:horn}
+Let $\mathbf C=(\{0,1\};\leq,\{0\},\{1\})$. The functions $\min$ of all arities are totally symmetric polymorphisms, so arc consistency, BLP and BLP+AIP all solve $\CSP(\mathbf C)$, but AIP does not. Indeed, suppose $f$ is an alternating polymorphism of arity $3$. Preserving $\{0\}$ and $\{1\}$ gives $f(0,0,0)=0$ and $f(1,1,1)=1$. The second property of alternating functions gives $f(1,0,0)=f(1,1,1)=1$ and $f(0,1,1)=f(0,0,0)=0$, and the first gives $f(0,0,1)=f(1,0,0)=1$. But $(0,0,1)\leq(0,1,1)$ coordinatewise, so preserving $\leq$ forces $f(0,0,1)\leq f(0,1,1)$, a contradiction.
+\end{example}
+
+\begin{example}[Linear equations modulo $2$]\label{ex:mod2}
+Let $\mathbf E=(\{0,1\};E_0,E_1)$ with $E_c=\{(x,y,z) : x+y+z\equiv c\pmod 2\}$. The function $x_1+\dots+x_{2L+1}\bmod 2$ is a symmetric and alternating polymorphism (applied to three rows whose columns lie in $E_c$, it gives a triple with sum $(2L+1)c\equiv c$), so AIP and BLP+AIP solve $\CSP(\mathbf E)$. BLP does not, since there is no symmetric binary polymorphism $f$. Indeed, the rows $(0,1),(0,1),(0,0)$ have columns in $E_0$, which gives $f(0,0)=0$, and the rows $(1,0),(0,1),(0,0)$ have columns in $E_1$, which gives $f(1,0)+f(0,1)\equiv1$, contradicting $f(1,0)=f(0,1)$.
+\end{example}
+
+\begin{remark}[Further directions]\label{rem:further}
+Minion homomorphisms between polymorphism minions, of which Example~\ref{ex:nat}(b) is the simplest case, also characterise gadget reductions between PCSPs \cite{BBKO,KO}, and Barto, Bulín, Krokhin and Opršal \cite{BBKO} derive NP-hardness of PCSPs from minion homomorphisms out of $\Pol(\bA,\bB)$ into suitable minions, combined with the NP-hardness of gap label cover.
+
+On the algorithmic side, many further relaxations fit the same framework, such as CLAP \cite{CZ-CLAP}, the hierarchies of minion tests built from a tensor construction \cite{CZ-tensors} (which capture for example $k$-consistency and the Sherali--Adams hierarchy), and the singleton versions of the algorithms above, which Zhuk \cite{Zhuk} characterises through minion homomorphisms and polymorphisms with ``palette'' symmetries.
+
+Mottet \cite{Mottet} transfers results between PCSPs and CSPs of infinite structures, which can serve as tractable sandwiches as in Remark~\ref{rem:sandwich}. Finally, Hadek, Jakl and Opršal \cite{HJO} develop the categorical picture behind these notes, in which solutions are limits, polymorphism minions are Kan extensions and the free structure is a left adjoint.
+\end{remark}
+
+%=====================================================================
+\section*{Exercises}
+
+\begin{enumerate}[label=\arabic*.]
+  \item Check that the three maps $q\mapsto\supp q$, $(q,z)\mapsto q$ and $(q,z)\mapsto z$ of Section~\ref{sec:compare} are minion homomorphisms. Where is it used that $q$ is nonnegative?
+  \item Show that $\bF_\Hm(K_2)$ and $\bF_{\Qc}(K_2)$ both contain a loop, and deduce from Theorem~\ref{thm:pcsp} that neither arc consistency nor BLP solves $\CSP(K_2)$.
+  \item Show directly that $\Za$ does not map to $\Hm$, and that $\Hm$ does not map to $\Qc$. (Consider the images of $a_1\in\Za([3])$ and of $[3]\in\Hm([3])$.)
+  \item Fill in the details of the converse in Section~\ref{sec:exact}: show that the solutions of the instance built from $\M$ correspond to the minion homomorphisms $\M\to\Pm$, and use Tychonoff's theorem to find one when the $\M$-relaxation solves label cover.
+\end{enumerate}
+
+{\small
+\begin{thebibliography}{99}
+\bibitem{BBKO} L.~Barto, J.~Bulín, A.~Krokhin, J.~Opršal. Algebraic approach to promise constraint satisfaction. \emph{J.~ACM} 68(4), 2021. arXiv:1811.00970.
+\bibitem{BGWZ} J.~Brakensiek, V.~Guruswami, M.~Wrochna, S.~Živný. The power of the combined basic linear programming and affine relaxation for promise constraint satisfaction problems. \emph{SIAM J.~Comput.} 49(6), 2020. arXiv:1907.04383.
+\bibitem{dBE} N.~G.~de Bruijn, P.~Erdős. A colour problem for infinite graphs and a problem in the theory of relations. \emph{Indag.\ Math.} 13, 1951.
+\bibitem{CZ-CLAP} L.~Ciardo, S.~Živný. CLAP: A new algorithm for promise CSPs. \emph{SIAM J.~Comput.} 52(1), 2023. arXiv:2107.05018.
+\bibitem{CZ-tensors} L.~Ciardo, S.~Živný. Hierarchies of minion tests for PCSPs through tensors. In \emph{Proc.\ SODA}, 2023. arXiv:2207.02277.
+\bibitem{DP} V.~Dalmau, J.~Pearson. Closure functions and width 1 problems. In \emph{Proc.\ CP}, LNCS 1713, 1999.
+\bibitem{FV} T.~Feder, M.~Y.~Vardi. The computational structure of monotone monadic SNP and constraint satisfaction: a study through Datalog and group theory. \emph{SIAM J.~Comput.} 28(1), 1998.
+\bibitem{HJO} M.~Hadek, T.~Jakl, J.~Opršal. A categorical perspective on constraint satisfaction: the wonderland of adjunctions. In \emph{Proc.\ LICS}, 2026. arXiv:2503.10353.
+\bibitem{KO} A.~Krokhin, J.~Opršal. An invitation to the promise constraint satisfaction problem. \emph{ACM SIGLOG News} 9(3), 2022. arXiv:2208.13538.
+\bibitem{KOTYZ} G.~Kun, R.~O'Donnell, S.~Tamaki, Y.~Yoshida, Y.~Zhou. Linear programming, width-1 CSPs, and robust satisfaction. In \emph{Proc.\ ITCS}, 2012.
+\bibitem{Lar} A.~Larrauri. Ineffectiveness for search and undecidability of PCSP meta-problems. arXiv:2504.04639, 2025.
+\bibitem{Lau} H.~Läuchli. Coloring infinite graphs and the Boolean prime ideal theorem. \emph{Israel J.~Math.} 9, 1971.
+\bibitem{Mottet} A.~Mottet. Algebraic and algorithmic synergies between promise and infinite-domain CSPs. In \emph{Proc.\ LICS}, 2025. arXiv:2501.13740.
+\bibitem{RTW} D.~Rorabaugh, C.~Tardif, D.~Wehlau. Logical compactness and constraint satisfaction problems. \emph{Log.\ Methods Comput.\ Sci.} 13(1), 2017. arXiv:1609.05221.
+\bibitem{Zhuk} D.~Zhuk. Singleton algorithms for the constraint satisfaction problem. arXiv:2509.18434, 2025.
+\end{thebibliography}
+}
+
+\end{document}
