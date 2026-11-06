@@ -73,9 +73,9 @@ One of the central results of the algebraic theory of promise constraint satisfa
 
 The primary objective of these notes is twofold: (1) to give a self-contained and rigorous proof of this characterisation (theorem~\ref{thm:pcsp}), passing through label cover; and (2) to derive from it, by a single recipe (theorem~\ref{thm:generic}), the characterisations of arc consistency, the basic LP relaxation, the affine integer relaxation and their combination. We assume some familiarity with relational structures and polymorphisms, but no category theory beyond what section~\ref{sec:min} introduces.
 
-To start off with, section~\ref{sec:min} introduces functors, natural transformations and minions. Section~\ref{sec:lc} introduces label cover, the problem through which minions and PCSPs meet, and section~\ref{sec:relax} defines the relaxation of label cover given by a minion. In section~\ref{sec:pcsp} we translate PCSPs into label cover, prove the characterisation, and discuss the search version of PCSPs together with rounding.
+To start off with, section~\ref{sec:min} introduces functors, natural transformations and minions. Section~\ref{sec:lc} introduces label cover, the problem through which minions and PCSPs meet, and section~\ref{sec:relax} defines the relaxation of label cover given by a minion. In section~\ref{sec:pcsp} we translate PCSPs into label cover and prove the characterisation.
 
-Section~\ref{sec:app} turns it into a recipe, which organises the rest of the notes: whether a relaxation solves $\PCSP(\bA,\bB)$ comes down to which minor identities certain generic elements of its minion satisfy. We apply this to the four algorithms above, with the template $(\OIT,\NAE)$ of example~\ref{ex:1in3} as a running example of a promise problem that is not a CSP, compare the four relaxations in section~\ref{sec:compare}, and return to rounding for them in section~\ref{sec:rounding}.
+Section~\ref{sec:app} turns it into a recipe, which organises the rest of the notes: whether a relaxation solves $\PCSP(\bA,\bB)$ comes down to which minor identities certain generic elements of its minion satisfy. We apply this to the four algorithms above, with the template $(\OIT,\NAE)$ of example~\ref{ex:1in3} as a running example of a promise problem that is not a CSP, and compare the four relaxations in section~\ref{sec:compare}. Finally, section~\ref{sec:search-round} turns to the search version of PCSPs, and asks when a solution of a relaxation can be rounded to an actual solution.
 
 %=====================================================================
 \section{Structures, Functors and Minions}\label{sec:min}
@@ -434,54 +434,6 @@ A minion homomorphism $\xi\colon\M\to\N$ gives a homomorphism $\xi_A\colon\bF_\M
 
 If the $\M$-relaxation solves $\PCSP(\bA,\bB)$, we thus have $\bA\to\bF_\M(\bA)\to\bB$, and by lemma~\ref{lem:free-sol} the problem $\CSP(\bF_\M(\bA))$ is decided by the $\M$-relaxation itself. Every relaxation that solves a template thus exhibits a (usually infinite) structure sandwiched between $\bA$ and $\bB$ whose CSP it solves. For arc consistency, $\bF_\Hm(\bA)$ is the power structure of Feder and Vardi \cite{FV}.
 \end{remark}
-
-\subsection{The Search Version}\label{sec:search}
-
-So far we have only considered the \emph{decision} version of $\PCSP(\bA,\bB)$, in which an algorithm only has to accept or reject.
-
-\begin{definition}[the search version]
-The \emph{search version} of $\PCSP(\bA,\bB)$ is the following problem: given a finite $\tau$-structure $\bI$ with $\bI\to\bA$, find a homomorphism $\bI\to\bB$.
-\end{definition}
-
-Under the promise a homomorphism $\bI\to\bB$ always exists, since $\bI\to\bA\to\bB$, and on instances with $\bI\not\to\bA$ any output (or none) is allowed. Note that we only ask for a homomorphism into the weaker structure $\bB$, not into $\bA$.
-
-\begin{lemma}\label{lem:dec-search}
-The decision version of $\PCSP(\bA,\bB)$ reduces in polynomial time to its search version.
-\end{lemma}
-
-\begin{proof}
-Given $\bI$, run a polynomial-time algorithm for the search version (stopped after its time bound, since on instances outside the promise it need not halt), and accept if and only if its output is a homomorphism $\bI\to\bB$, which can be checked in polynomial time. If $\bI\to\bA$, the output is such a homomorphism, so we accept, and if $\bI\not\to\bB$, there is no such homomorphism, so we reject.
-\end{proof}
-
-Whether the converse holds is open, and this is one of the central questions about PCSPs \cite{BGWZ,Lar}. For CSPs (that is, for $\bA=\bB$) the two versions are polynomial-time equivalent \cite{Coh}. The standard argument fixes the values of the elements of $\bI$ one at a time, each time using the decision procedure to check that the values fixed so far still extend to a solution. For PCSPs this self-reduction breaks down: once an element has been fixed to a value of $B$, the new instance need not satisfy the promise any more (it may map to $\bB$ without mapping to $\bA$), and on such instances the answer of the decision procedure carries no information.
-
-Relaxations nevertheless come with a natural strategy for the search version, through the following maps.
-
-\begin{definition}[rounding maps]
-Let $\M$ be a minion. A \emph{rounding map} for the $\M$-relaxation of $\PCSP(\bA,\bB)$ is a homomorphism $h\colon\bF_\M(\bA)\to\bB$.
-\end{definition}
-
-By theorem~\ref{thm:pcsp}, a rounding map exists if and only if the $\M$-relaxation solves $\PCSP(\bA,\bB)$. It depends only on the template, and the name comes from what it does to $\M$-solutions.
-
-\begin{proposition}[solve, then round]\label{prop:round}
-Let $h$ be a rounding map for the $\M$-relaxation of $\PCSP(\bA,\bB)$, and let $(p_x)_x$ be an $\M$-solution of $\Sigma_{\bI}$. Then $v\mapsto h(p_v)$ is a homomorphism $\bI\to\bB$.
-\end{proposition}
-
-\begin{proof}
-By lemma~\ref{lem:free-sol}, $v\mapsto p_v$ is a homomorphism $\bI\to\bF_\M(\bA)$, and composing it with $h$ gives a homomorphism $\bI\to\bB$.
-\end{proof}
-
-If the $\M$-relaxation solves $\PCSP(\bA,\bB)$ and $h$ is a rounding map, this suggests the following algorithm for the search version, on an instance $\bI$ with $\bI\to\bA$.
-\begin{enumerate}[label=(\arabic*)]
-  \item Find an $\M$-solution $(p_x)_x$ of $\Sigma_{\bI}$, which exists by lemma~\ref{lem:sigma-sol} and theorem~\ref{thm:complete}.
-  \item Output $v\mapsto h(p_v)$.
-\end{enumerate}
-By proposition~\ref{prop:round} the output is correct, and the algorithm runs in polynomial time provided that
-\begin{enumerate}[label=(\alph*)]
-  \item an $\M$-solution of $\Sigma_{\bI}$ can be \emph{found} in polynomial time, and not merely shown to exist; and
-  \item $h$ can be \emph{evaluated} in polynomial time on the entries $p_v$ that occur, measured in their size as part of the input (for instance the number of bits of the rational numbers involved).
-\end{enumerate}
-We return to these two conditions for the four algorithms of section~\ref{sec:app} in section~\ref{sec:rounding}.
 
 %=====================================================================
 \section{Applications}\label{sec:app}
@@ -850,10 +802,69 @@ Let $\mathbf E=(\{0,1\};E_0,E_1)$ with $E_c=\{(x,y,z) : x+y+z\equiv c\pmod 2\}$.
 \end{example}
 
 
-%---------------------------------------------------------------------
-\subsection{Rounding}\label{sec:rounding}
+\begin{remark}[further directions]\label{rem:further}
+Minion homomorphisms between polymorphism minions, of which example~\ref{ex:nat}(b) is the simplest case, also characterise gadget reductions between PCSPs \cite{BBKO,KO}, and Barto, Bulín, Krokhin and Opršal \cite{BBKO} derive NP-hardness of PCSPs from minion homomorphisms out of $\Pol(\bA,\bB)$ into suitable minions, combined with the NP-hardness of gap label cover.
 
-We now return to the search version (section~\ref{sec:search}) for the four algorithms above. Condition (a) of section~\ref{sec:search} holds for all of them: arc consistency produces its final sets, linear programming returns a rational feasible point of the BLP, the Hermite normal form produces an integer solution of the AIP, and BLP+AIP produces the pair $(q^*,z)$ of proposition~\ref{prop:ba}. Whether solving and then rounding gives an algorithm for the search version therefore depends on condition (b).
+On the algorithmic side, many further relaxations fit the same framework, such as CLAP \cite{CZ-CLAP}, the hierarchies of minion tests built from a tensor construction \cite{CZ-tensors} (which capture for example $k$-consistency and the Sherali--Adams hierarchy), and the singleton versions of the algorithms above, which Zhuk \cite{Zhuk} characterises through minion homomorphisms and polymorphisms with ``palette'' symmetries.
+
+Mottet \cite{Mottet} transfers results between PCSPs and CSPs of infinite structures, which can serve as tractable sandwiches as in remark~\ref{rem:sandwich}. Finally, Hadek, Jakl and Opršal \cite{HJO} develop the categorical picture behind these notes, in which solutions are limits, polymorphism minions are Kan extensions and the free structure is a left adjoint.
+\end{remark}
+
+%=====================================================================
+\section{Search and Rounding}\label{sec:search-round}
+
+\subsection{The Search Version}\label{sec:search}
+
+So far we have only considered the \emph{decision} version of $\PCSP(\bA,\bB)$, in which an algorithm only has to accept or reject. In this section we ask when a relaxation can also be used to \emph{find} a solution.
+
+\begin{definition}[the search version]
+The \emph{search version} of $\PCSP(\bA,\bB)$ is the following problem: given a finite $\tau$-structure $\bI$ with $\bI\to\bA$, find a homomorphism $\bI\to\bB$.
+\end{definition}
+
+Under the promise a homomorphism $\bI\to\bB$ always exists, since $\bI\to\bA\to\bB$, and on instances with $\bI\not\to\bA$ any output (or none) is allowed. Note that we only ask for a homomorphism into the weaker structure $\bB$, not into $\bA$.
+
+\begin{lemma}\label{lem:dec-search}
+The decision version of $\PCSP(\bA,\bB)$ reduces in polynomial time to its search version.
+\end{lemma}
+
+\begin{proof}
+Given $\bI$, run a polynomial-time algorithm for the search version (stopped after its time bound, since on instances outside the promise it need not halt), and accept if and only if its output is a homomorphism $\bI\to\bB$, which can be checked in polynomial time. If $\bI\to\bA$, the output is such a homomorphism, so we accept, and if $\bI\not\to\bB$, there is no such homomorphism, so we reject.
+\end{proof}
+
+Whether the converse holds is open, and this is one of the central questions about PCSPs \cite{BGWZ,Lar}. For CSPs (that is, for $\bA=\bB$) the two versions are polynomial-time equivalent \cite{Coh}. The standard argument fixes the values of the elements of $\bI$ one at a time, each time using the decision procedure to check that the values fixed so far still extend to a solution. For PCSPs this self-reduction breaks down: once an element has been fixed to a value of $B$, the new instance need not satisfy the promise any more (it may map to $\bB$ without mapping to $\bA$), and on such instances the answer of the decision procedure carries no information.
+
+\subsection{Rounding Maps}\label{sec:round-maps}
+
+Even if search turns out to be harder than decision in general, relaxations come with a natural strategy for the search version, through the following maps.
+
+\begin{definition}[rounding maps]
+Let $\M$ be a minion. A \emph{rounding map} for the $\M$-relaxation of $\PCSP(\bA,\bB)$ is a homomorphism $h\colon\bF_\M(\bA)\to\bB$.
+\end{definition}
+
+By theorem~\ref{thm:pcsp}, a rounding map exists if and only if the $\M$-relaxation solves $\PCSP(\bA,\bB)$. It depends only on the template, and the name comes from what it does to $\M$-solutions.
+
+\begin{proposition}[solve, then round]\label{prop:round}
+Let $h$ be a rounding map for the $\M$-relaxation of $\PCSP(\bA,\bB)$, and let $(p_x)_x$ be an $\M$-solution of $\Sigma_{\bI}$. Then $v\mapsto h(p_v)$ is a homomorphism $\bI\to\bB$.
+\end{proposition}
+
+\begin{proof}
+By lemma~\ref{lem:free-sol}, $v\mapsto p_v$ is a homomorphism $\bI\to\bF_\M(\bA)$, and composing it with $h$ gives a homomorphism $\bI\to\bB$.
+\end{proof}
+
+If the $\M$-relaxation solves $\PCSP(\bA,\bB)$ and $h$ is a rounding map, this suggests the following algorithm for the search version, on an instance $\bI$ with $\bI\to\bA$.
+\begin{enumerate}[label=(\arabic*)]
+  \item Find an $\M$-solution $(p_x)_x$ of $\Sigma_{\bI}$, which exists by lemma~\ref{lem:sigma-sol} and theorem~\ref{thm:complete}.
+  \item Output $v\mapsto h(p_v)$.
+\end{enumerate}
+By proposition~\ref{prop:round} the output is correct, and the algorithm runs in polynomial time provided that
+\begin{enumerate}[label=(\alph*)]
+  \item an $\M$-solution of $\Sigma_{\bI}$ can be \emph{found} in polynomial time, and not merely shown to exist; and
+  \item $h$ can be \emph{evaluated} in polynomial time on the entries $p_v$ that occur, measured in their size as part of the input (for instance the number of bits of the rational numbers involved).
+\end{enumerate}
+
+\subsection{Rounding for the Four Algorithms}\label{sec:rounding}
+
+We now check conditions (a) and (b) of section~\ref{sec:round-maps} for the four algorithms of section~\ref{sec:app}. Condition (a) holds for all of them: arc consistency produces its final sets, linear programming returns a rational feasible point of the BLP, the Hermite normal form produces an integer solution of the AIP, and BLP+AIP produces the pair $(q^*,z)$ of proposition~\ref{prop:ba}. Whether solving and then rounding gives an algorithm for the search version therefore depends on condition (b).
 
 The proofs of theorems~\ref{thm:generic} and~\ref{thm:pcsp} give the rounding explicitly, in terms of the polymorphisms satisfying the identities of the generic elements. Note that if $p_v=\M(\pi_v)(g_j)$ for an element $v$ of $\bI$, then $\pi_v$ is a function $X_j\to D_v=A$, that is, an element of $A^{X_j}$.
 
@@ -880,14 +891,6 @@ In words, the entry at $v$ is rounded by applying $f_j$ to the list of elements 
 \emph{AIP and BLP+AIP in general.} The same problem arises with the arity $2L+1$ of the alternating or block-symmetric polymorphisms, since $L$ has to be at least $|z_x^-|$ for every entry (lemma~\ref{lem:gen-Z}), respectively equal to $Kn$ once the distributions have been modified as in the proof of lemma~\ref{lem:gen-BA}, and these numbers can again be exponentially large.
 
 That this is a genuine obstruction was shown by Larrauri \cite{Lar}: for BLP, AIP and BLP+AIP, rounding a solution of the relaxation to a homomorphism $\bI\to\bB$ can be as hard as any problem in the class TFNP of total search problems in NP. (The rounding task is of this kind, since by proposition~\ref{prop:round} a solution always exists, and a proposed solution can be checked in polynomial time.) This does not show that the search version of these templates is hard, since some other algorithm might solve it, but it shows that solving and then rounding does not always give an algorithm for the search version.
-
-\begin{remark}[further directions]\label{rem:further}
-Minion homomorphisms between polymorphism minions, of which example~\ref{ex:nat}(b) is the simplest case, also characterise gadget reductions between PCSPs \cite{BBKO,KO}, and Barto, Bulín, Krokhin and Opršal \cite{BBKO} derive NP-hardness of PCSPs from minion homomorphisms out of $\Pol(\bA,\bB)$ into suitable minions, combined with the NP-hardness of gap label cover.
-
-On the algorithmic side, many further relaxations fit the same framework, such as CLAP \cite{CZ-CLAP}, the hierarchies of minion tests built from a tensor construction \cite{CZ-tensors} (which capture for example $k$-consistency and the Sherali--Adams hierarchy), and the singleton versions of the algorithms above, which Zhuk \cite{Zhuk} characterises through minion homomorphisms and polymorphisms with ``palette'' symmetries.
-
-Mottet \cite{Mottet} transfers results between PCSPs and CSPs of infinite structures, which can serve as tractable sandwiches as in remark~\ref{rem:sandwich}. Finally, Hadek, Jakl and Opršal \cite{HJO} develop the categorical picture behind these notes, in which solutions are limits, polymorphism minions are Kan extensions and the free structure is a left adjoint.
-\end{remark}
 
 %=====================================================================
 \section*{Exercises}
