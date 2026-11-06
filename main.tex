@@ -274,14 +274,14 @@ The $\M$-relaxation \emph{solves} label cover if $\Solm{\M}(\Sigma)\neq\varnothi
 
 By completeness, this means that the relaxation accepts precisely the instances that have a solution, and by monotonicity and example~\ref{ex:proj} this holds whenever there is a minion homomorphism $\M\to\Pm$.
 
-The converse also holds, although we will not need it. One views $\M$ itself as an infinite label cover instance, with a variable $(n,p)$ for every $n\geq1$ and $p\in\M([n])$ (we record $n$, since $\M([n])$ and $\M([m])$ need not be disjoint), label set $[n]$, and a constraint $((m,\M(\pi)(p)),(n,p),\pi)$ for every $\pi\colon[n]\to[m]$. Its solutions are the minion homomorphisms $\M\to\Pm$ (given by their components at the sets $[n]$, see the footnote to definition~\ref{def:minion}), it has the $\M$-solution $(n,p)\mapsto p$, and a compactness argument (Tychonoff's theorem for the product of the finite discrete spaces $[n]$, one for each variable, or König's lemma when $\M$ is countable) passes from its finite parts to the whole.
+The converse also holds, although we will not need it. One views $\M$ itself as an infinite label cover instance, with a variable $(n,p)$ for every $n\geq1$ and $p\in\M([n])$, label set $[n]$, and a constraint $((m,\M(\pi)(p)),(n,p),\pi)$ for every $\pi\colon[n]\to[m]$. Its solutions are the minion homomorphisms $\M\to\Pm$ (given by their components at the sets $[n]$, see the footnote to definition~\ref{def:minion}), it has the $\M$-solution $(n,p)\mapsto p$, and a compactness argument (Tychonoff's theorem for the product of the finite discrete spaces $[n]$, one for each variable, or König's lemma when $\M$ is countable) passes from its finite parts to the whole.
 
 Since $\Pm\to\M$ always holds (lemma~\ref{lem:proj-hom}), the $\M$-relaxation solves label cover if and only if $\M$ and $\Pm$ are homomorphically equivalent.
 
 \begin{remark}[why $\M\to\Pm$ is too strong]\label{rem:too-strong}
 Label cover is NP-complete, so (unless $\mathrm P=\mathrm{NP}$) no relaxation that can be checked in polynomial time solves it. For promise CSPs, however, much less is needed. In section~\ref{sec:pcsp} we translate an instance $\bI$ of $\PCSP(\bA,\bB)$ into a label cover instance $\Sigma_{\bI}$ of a special shape, and the relaxation then only needs to be correct on instances of this shape, and only up to the promise: an accepted instance must map to $\bB$, but not necessarily to $\bA$. Under these weaker demands the condition $\M\to\Pm$ becomes $\M\to\Pol(\bA,\bB)$.
 
-This is a real weakening. A homomorphism $h\colon\bA\to\bB$ gives a minion homomorphism $\Pm\to\Pol(\bA,\bB)$, sending $x\in X$ to $a\mapsto h(a(x))$, so $\M\to\Pm$ implies $\M\to\Pol(\bA,\bB)$ for every template. The converse fails badly, since $\Pol(\bA,\bB)$ may contain symmetric elements of arity at least $2$, which $\Pm$ never does (remark~\ref{rem:identities}). For instance, $\min$ is a symmetric binary polymorphism of the Horn structure $\mathbf C$ of example~\ref{ex:horn}, so the minion $\Pol(\mathbf C)$ maps to $\Pol(\mathbf C,\mathbf C)$ (by the identity) but not to $\Pm$.
+This is a real weakening. A homomorphism $h\colon\bA\to\bB$ gives a minion homomorphism $\Pm\to\Pol(\bA,\bB)$, sending $x\in X$ to $a\mapsto h(a(x))$, so $\M\to\Pm$ implies $\M\to\Pol(\bA,\bB)$ for every template. The converse fails badly, since $\Pol(\bA,\bB)$ may contain symmetric elements of arity at least $2$, which $\Pm$ never does (remark~\ref{rem:identities}). For instance, $\min$ is a symmetric binary polymorphism of the Horn structure $\mathbf C$ of example~\ref{ex:horn}.
 \end{remark}
 
 %=====================================================================
@@ -443,7 +443,7 @@ If the $\M$-relaxation solves $\PCSP(\bA,\bB)$, we thus have $\bA\to\bF_\M(\bA)\
 \noindent\begin{minipage}{\linewidth}
 Theorem~\ref{thm:pcsp} turns the question ``does this algorithm solve $\PCSP(\bA,\bB)$?'' into a question about polymorphisms. To answer it concretely, we
 \begin{enumerate}[label=(\arabic*)]
-  \item find a minion $\M$ such that the algorithm accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\M$-solution;
+  \item find a minion $\M$ such that the algorithm accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\M$-solution (because then the $\M$-relaxation solves $\PCSP(\bA,\bB)$ if and only if the algorithm solves $\PCSP(\bA,\bB)$);
   \item find \emph{generic} elements of $\M$, such that every instance with an $\M$-solution has one consisting of minors of a single generic element;
   \item determine which minor identities these generic elements satisfy.
 \end{enumerate}
@@ -471,14 +471,14 @@ Then the $\M$-relaxation solves $\PCSP(\bA,\bB)$ if and only if for every $j\in 
 \begin{proof}
 ($\Rightarrow$) Take $f_j=\xi_{X_j}(g_j)$ for a minion homomorphism $\xi\colon\M\to\Pol(\bA,\bB)$, which exists by theorem~\ref{thm:pcsp}.
 
-($\Leftarrow$) Suppose $\Sigma_{\bI}$ has an $\M$-solution. By (G) it has one of the form $p_x=\M(\pi_x)(g_j)$, for some $j$ and some functions $\pi_x\colon X_j\to D_x$. Writing $\Pol$ for $\Pol(\bA,\bB)$, put $f_x=\Pol(\pi_x)(f_j)$. For a constraint $(x,y,\alpha)$ we have $\M(\alpha\circ\pi_y)(g_j)=\M(\alpha)(p_y)=p_x=\M(\pi_x)(g_j)$, so, as $f_j$ satisfies the identities of $g_j$,
+($\Leftarrow$) Suppose $\Sigma_{\bI}$ has an $\M$-solution. By (G) there is some $j \in J$ and an $\M$-solution of the form $p_x=\M(\pi_x)(g_j)$, for some functions $\pi_x\colon X_j\to D_x$. Writing $\Pol$ for $\Pol(\bA,\bB)$, put $f_x=\Pol(\pi_x)(f_j)$. For a constraint $(x,y,\alpha)$ we have $\M(\alpha\circ\pi_y)(g_j)=\M(\alpha)(p_y)=p_x=\M(\pi_x)(g_j)$, so, as $f_j$ satisfies the identities of $g_j$,
 \[
 \Pol(\alpha)(f_y)=\Pol(\alpha\circ\pi_y)(f_j)=\Pol(\pi_x)(f_j)=f_x.
 \]
 Thus $(f_x)$ is a $\Pol(\bA,\bB)$-solution of $\Sigma_{\bI}$. Applying theorem~\ref{thm:pcsp} to the minion $\Pol(\bA,\bB)$ (which is nonempty by remark~\ref{rem:nonempty}) and its identity homomorphism, the $\Pol(\bA,\bB)$-relaxation solves $\PCSP(\bA,\bB)$, so $\bI\to\bB$.
 \end{proof}
 
-For each algorithm below we check (G) and identify the functions satisfying the identities of the generic elements. Recall that for an $n$-ary polymorphism $f$ and $\pi\colon[n]\to D$, the minor $\Pol(\bA,\bB)(\pi)(f)$ is the function $y\mapsto f(y\circ\pi)=f(y(\pi(1)),\dots,y(\pi(n)))$ on $A^D$.
+For each algorithm below we find generic elements such that (G) holds and identify the functions satisfying the identities of these generic elements. Recall that for an $n$-ary polymorphism $f$ and $\pi\colon[n]\to D$, the minor $\Pol(\bA,\bB)(\pi)(f)$ is the function $y\mapsto f(y\circ\pi)=f(y(\pi(1)),\dots,y(\pi(n)))$ on $A^D$.
 
 %---------------------------------------------------------------------
 \subsection{Arc Consistency}\label{sec:ac}
