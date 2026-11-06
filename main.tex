@@ -837,10 +837,10 @@ Whether the converse holds is open, and this is one of the central questions abo
 
 Even if search turns out to be harder than decision in general, the relaxations of section~\ref{sec:app} come with a natural strategy for the search version: solve the relaxation, and round its solution using the polymorphisms that theorem~\ref{thm:generic} provides.
 
-Throughout this subsection, let $\M$ be a minion with elements $g_j\in\M(X_j)$ for $j\in J$ satisfying (G), and suppose that the $\M$-relaxation solves $\PCSP(\bA,\bB)$. By theorem~\ref{thm:generic} there are polymorphisms $f_j\in\Pol(\bA,\bB)(X_j)$ satisfying the identities of $g_j$, and we fix such $f_j$. Note that if $p_v=\M(\pi_v)(g_j)$ for an element $v$ of $\bI$, then $\pi_v$ is a function $X_j\to D_v=A$, that is, an element of $A^{X_j}$, so $f_j(\pi_v)\in B$ makes sense.
+Throughout this subsection, let $\M$ be a minion with elements $g_j\in\M(X_j)$ for $j\in J$ satisfying (G), and suppose that the $\M$-relaxation solves $\PCSP(\bA,\bB)$. By theorem~\ref{thm:generic} there are polymorphisms $f_j\in\Pol(\bA,\bB)(X_j)$ satisfying the identities of $g_j$, and we fix such $f_j$. 
 
 \begin{proposition}[rounding via generic elements]\label{prop:round-generic}
-Let $(p_x)_x$ be an $\M$-solution of $\Sigma_{\bI}$ with $p_x=\M(\pi_x)(g_j)$ for some $j\in J$ and functions $\pi_x\colon X_j\to D_x$. Then the value $f_j(\pi_v)$ depends only on $j$ and $p_v$ (and not on the choice of $\pi_v$), and
+For some $j \in J$, let $(p_x)_x$ be an $\M$-solution of $\Sigma_{\bI}$ with $p_x=\M(\pi_x)(g_j)$ for functions $\pi_x\colon X_j\to D_x$. Then
 \[
 v\mapsto f_j(\pi_v)
 \]
@@ -848,9 +848,11 @@ is a homomorphism $\bI\to\bB$.
 \end{proposition}
 
 \begin{proof}
-Suppose that also $p_v=\M(\pi')(g_j)$. As $f_j$ satisfies the identities of $g_j$, the minors of $f_j$ along $\pi_v$ and along $\pi'$ are the same function on $A^A$, and evaluating it at $\id_A$ gives $f_j(\pi_v)=f_j(\pi')$.
+If $p_v=\M(\pi_v)(g_j)$ for an element $v$ of $\bI$, then $\pi_v$ is a function $X_j\to D_v=A$, that is, an element of $A^{X_j}$, so $f_j(\pi_v)\in B$ makes sense.
 
-Now let $c=((v_1,\dots,v_k),R)$ be a constraint of $\bI$. The constraint $(v_i,c,\pr_i)$ of $\Sigma_{\bI}$ gives $p_{v_i}=\M(\pr_i)(p_c)=\M(\pr_i\circ\pi_c)(g_j)$, so by the first part $f_j(\pi_{v_i})=f_j(\pr_i\circ\pi_c)$ for every $i$. For every $x\in X_j$ the tuple $(\pr_1(\pi_c(x)),\dots,\pr_k(\pi_c(x)))$ is just $\pi_c(x)\in R^{\bA}$, so $(\pr_1\circ\pi_c,\dots,\pr_k\circ\pi_c)$ lies in the relation $R$ of the power $\bA^{X_j}$, and since $f_j$ is a polymorphism, $(f_j(\pi_{v_1}),\dots,f_j(\pi_{v_k}))\in R^{\bB}$.
+Also, note that $f_j(\pi_v)$ is independent of the choice of $\pi_v$. Suppose that $p_v=\M(\pi')(g_j)$. As $f_j$ satisfies the identities of $g_j$, the minors of $f_j$ along $\pi_v$ and along $\pi'$ are the same function on $A^A$, and evaluating it at $\id_A$ gives $f_j(\pi_v)=f_j(\pi')$.
+
+Now let $c=((v_1,\dots,v_k),R)$ be a constraint of $\bI$. The constraint $(v_i,c,\pr_i)$ of $\Sigma_{\bI}$ gives $p_{v_i}=\M(\pr_i)(p_c)=\M(\pr_i\circ\pi_c)(g_j)$, so by the above observation $f_j(\pi_{v_i})=f_j(\pr_i\circ\pi_c)$ for every $i$. For every $x\in X_j$ the tuple $(\pr_1(\pi_c(x)),\dots,\pr_k(\pi_c(x)))$ is just $\pi_c(x)\in R^{\bA}$, so $(\pr_1\circ\pi_c,\dots,\pr_k\circ\pi_c)$ lies in the relation $R$ of the power $\bA^{X_j}$, and since $f_j$ is a polymorphism, $(f_j(\pi_{v_1}),\dots,f_j(\pi_{v_k}))\in R^{\bB}$.
 \end{proof}
 
 In words, the entry at $v$ is rounded by applying $f_j$ to the list of elements of $A$ that make up $p_v$. It matters that a single $j$ is used for the whole solution. The polymorphisms $f_j$ are chosen independently of each other, and an element of $\M(A)$ can be a minor of several generic elements and be rounded differently by them. For instance, let $\bA=\bB=(\{0,1\};U)$ with $U=\{0,1\}$ unary, so that every function is a polymorphism, and for BLP choose the symmetric polymorphisms $f_1=\id$ and $f_2(x,y)=1-\max(x,y)$. The point mass $\delta_0\in\Qc(\{0,1\})$ is a minor of both $u_1$ and $u_2$, but it is rounded to $f_1(0)=0$ by the first and to $f_2(0,0)=1$ by the second.
