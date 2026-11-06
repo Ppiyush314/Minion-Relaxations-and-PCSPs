@@ -471,12 +471,14 @@ Then the $\M$-relaxation solves $\PCSP(\bA,\bB)$ if and only if for every $j\in 
 \begin{proof}
 ($\Rightarrow$) Take $f_j=\xi_{X_j}(g_j)$ for a minion homomorphism $\xi\colon\M\to\Pol(\bA,\bB)$, which exists by theorem~\ref{thm:pcsp}.
 
-($\Leftarrow$) Suppose $\Sigma_{\bI}$ has an $\M$-solution. By (G) there is some $j \in J$ and an $\M$-solution of the form $p_x=\M(\pi_x)(g_j)$, for some functions $\pi_x\colon X_j\to D_x$. Writing $\Pol$ for $\Pol(\bA,\bB)$, put $f_x=\Pol(\pi_x)(f_j)$. For a constraint $(x,y,\alpha)$ we have $\M(\alpha\circ\pi_y)(g_j)=\M(\alpha)(p_y)=p_x=\M(\pi_x)(g_j)$, so, as $f_j$ satisfies the identities of $g_j$,
-\[
-\Pol(\alpha)(f_y)=\Pol(\alpha\circ\pi_y)(f_j)=\Pol(\pi_x)(f_j)=f_x.
-\]
-Thus $(f_x)$ is a $\Pol(\bA,\bB)$-solution of $\Sigma_{\bI}$. Applying theorem~\ref{thm:pcsp} to the minion $\Pol(\bA,\bB)$ (which is nonempty by remark~\ref{rem:nonempty}) and its identity homomorphism, the $\Pol(\bA,\bB)$-relaxation solves $\PCSP(\bA,\bB)$, so $\bI\to\bB$.
+($\Leftarrow$) Suppose $\Sigma_{\bI}$ has an $\M$-solution. By (G) there is some $j \in J$ and an $\M$-solution $(p_x)_x$ of the form $p_x=\M(\pi_x)(g_j)$, for some functions $\pi_x\colon X_j\to D_x$. We show that $v\mapsto f_j(\pi_v)$ is a homomorphism $\bI\to\bB$. For an element $v$ of $\bI$, $\pi_v$ is a function $X_j\to D_v=A$, that is, an element of $A^{X_j}$, so $f_j(\pi_v)\in B$ makes sense.
+
+First, note that $f_j(\pi_v)$ is independent of the choice of $\pi_v$. Suppose that also $p_v=\M(\pi')(g_j)$. As $f_j$ satisfies the identities of $g_j$, the minors of $f_j$ along $\pi_v$ and along $\pi'$ are the same function on $A^A$, and evaluating it at $\id_A$ gives $f_j(\pi_v)=f_j(\pi')$.
+
+Now let $c=((v_1,\dots,v_k),R)$ be a constraint of $\bI$. The constraint $(v_i,c,\pr_i)$ of $\Sigma_{\bI}$ gives $p_{v_i}=\M(\pr_i)(p_c)=\M(\pr_i\circ\pi_c)(g_j)$, so by the above observation $f_j(\pi_{v_i})=f_j(\pr_i\circ\pi_c)$ for every $i$. For every $x\in X_j$ the tuple $(\pr_1(\pi_c(x)),\dots,\pr_k(\pi_c(x)))$ is just $\pi_c(x)\in R^{\bA}$, so $(\pr_1\circ\pi_c,\dots,\pr_k\circ\pi_c)$ lies in the relation $R$ of the power $\bA^{X_j}$, and since $f_j$ is a polymorphism, $(f_j(\pi_{v_1}),\dots,f_j(\pi_{v_k}))\in R^{\bB}$. Hence $v\mapsto f_j(\pi_v)$ is a homomorphism, and $\bI\to\bB$.
 \end{proof}
+
+The proof of ($\Leftarrow$) shows a little more than $\bI\to\bB$: from an $\M$-solution made of minors of a single $g_j$, it constructs a homomorphism $\bI\to\bB$ explicitly, by applying $f_j$ to the list of elements of $A$ that make up each entry $p_v$. We will come back to this in section~\ref{sec:search-round}.
 
 For each algorithm below we find generic elements such that (G) holds and identify the functions satisfying the identities of these generic elements. Recall that for an $n$-ary polymorphism $f$ and $\pi\colon[n]\to D$, the minor $\Pol(\bA,\bB)(\pi)(f)$ is the function $y\mapsto f(y\circ\pi)=f(y(\pi(1)),\dots,y(\pi(n)))$ on $A^D$.
 
@@ -837,32 +839,20 @@ Whether the converse holds is open, and this is one of the central questions abo
 
 Even if search turns out to be harder than decision in general, the relaxations of section~\ref{sec:app} come with a natural strategy for the search version: solve the relaxation, and round its solution using the polymorphisms that theorem~\ref{thm:generic} provides.
 
-Throughout this subsection, let $\M$ be a minion with elements $g_j\in\M(X_j)$ for $j\in J$ satisfying (G), and suppose that the $\M$-relaxation solves $\PCSP(\bA,\bB)$. By theorem~\ref{thm:generic} there are polymorphisms $f_j\in\Pol(\bA,\bB)(X_j)$ satisfying the identities of $g_j$, and we fix such $f_j$. 
-
-\begin{proposition}[rounding via generic elements]\label{prop:round-generic}
-For some $j \in J$, let $(p_x)_x$ be an $\M$-solution of $\Sigma_{\bI}$ with $p_x=\M(\pi_x)(g_j)$ for functions $\pi_x\colon X_j\to D_x$. Then
+Throughout this subsection, let $\M$ be a minion with elements $g_j\in\M(X_j)$ for $j\in J$ satisfying (G), and suppose that the $\M$-relaxation solves $\PCSP(\bA,\bB)$. By theorem~\ref{thm:generic} there are polymorphisms $f_j\in\Pol(\bA,\bB)(X_j)$ satisfying the identities of $g_j$, and we fix such $f_j$. As the proof of theorem~\ref{thm:generic} shows, if $(p_x)_x$ is an $\M$-solution of $\Sigma_{\bI}$ with $p_x=\M(\pi_x)(g_j)$ for some $j\in J$ and functions $\pi_x\colon X_j\to D_x$, then
 \[
 v\mapsto f_j(\pi_v)
 \]
-is a homomorphism $\bI\to\bB$.
-\end{proposition}
+is a homomorphism $\bI\to\bB$, and the value $f_j(\pi_v)$ depends only on $j$ and $p_v$. In words, the entry at $v$ is rounded by applying $f_j$ to the list of elements of $A$ that make up $p_v$.
 
-\begin{proof}
-If $p_v=\M(\pi_v)(g_j)$ for an element $v$ of $\bI$, then $\pi_v$ is a function $X_j\to D_v=A$, that is, an element of $A^{X_j}$, so $f_j(\pi_v)\in B$ makes sense.
+It matters that a single $j$ is used for the whole solution. The polymorphisms $f_j$ are chosen independently of each other, and an element of $\M(A)$ can be a minor of several generic elements and be rounded differently by them. For instance, let $\bA=\bB=(\{0,1\};U)$ with $U=\{0,1\}$ unary, so that every function is a polymorphism, and for BLP choose the symmetric polymorphisms $f_1=\id$ and $f_2(x,y)=1-\max(x,y)$. The point mass $\delta_0\in\Qc(\{0,1\})$ is a minor of both $u_1$ and $u_2$, but it is rounded to $f_1(0)=0$ by the first and to $f_2(0,0)=1$ by the second.
 
-Also, note that $f_j(\pi_v)$ is independent of the choice of $\pi_v$. Suppose that $p_v=\M(\pi')(g_j)$. As $f_j$ satisfies the identities of $g_j$, the minors of $f_j$ along $\pi_v$ and along $\pi'$ are the same function on $A^A$, and evaluating it at $\id_A$ gives $f_j(\pi_v)=f_j(\pi')$.
-
-Now let $c=((v_1,\dots,v_k),R)$ be a constraint of $\bI$. The constraint $(v_i,c,\pr_i)$ of $\Sigma_{\bI}$ gives $p_{v_i}=\M(\pr_i)(p_c)=\M(\pr_i\circ\pi_c)(g_j)$, so by the above observation $f_j(\pi_{v_i})=f_j(\pr_i\circ\pi_c)$ for every $i$. For every $x\in X_j$ the tuple $(\pr_1(\pi_c(x)),\dots,\pr_k(\pi_c(x)))$ is just $\pi_c(x)\in R^{\bA}$, so $(\pr_1\circ\pi_c,\dots,\pr_k\circ\pi_c)$ lies in the relation $R$ of the power $\bA^{X_j}$, and since $f_j$ is a polymorphism, $(f_j(\pi_{v_1}),\dots,f_j(\pi_{v_k}))\in R^{\bB}$.
-\end{proof}
-
-In words, the entry at $v$ is rounded by applying $f_j$ to the list of elements of $A$ that make up $p_v$. It matters that a single $j$ is used for the whole solution. The polymorphisms $f_j$ are chosen independently of each other, and an element of $\M(A)$ can be a minor of several generic elements and be rounded differently by them. For instance, let $\bA=\bB=(\{0,1\};U)$ with $U=\{0,1\}$ unary, so that every function is a polymorphism, and for BLP choose the symmetric polymorphisms $f_1=\id$ and $f_2(x,y)=1-\max(x,y)$. The point mass $\delta_0\in\Qc(\{0,1\})$ is a minor of both $u_1$ and $u_2$, but it is rounded to $f_1(0)=0$ by the first and to $f_2(0,0)=1$ by the second.
-
-Proposition~\ref{prop:round-generic} gives the following algorithm for the search version, on an instance $\bI$ with $\bI\to\bA$.
+This gives the following algorithm for the search version, on an instance $\bI$ with $\bI\to\bA$.
 \begin{enumerate}[label=(\arabic*)]
   \item Find an $\M$-solution $(p_x)_x$ of $\Sigma_{\bI}$ all of whose entries are minors of a single $g_j$, together with this $j$. Such a solution exists, since $\Sigma_{\bI}$ has a solution (lemma~\ref{lem:sigma-sol}), hence an $\M$-solution (theorem~\ref{thm:complete}), hence one of this form by (G).
   \item Output $v\mapsto f_j(\pi_v)$, where $p_v=\M(\pi_v)(g_j)$.
 \end{enumerate}
-By proposition~\ref{prop:round-generic} the output is a homomorphism $\bI\to\bB$, and the algorithm runs in polynomial time provided that
+By the proof of theorem~\ref{thm:generic} the output is a homomorphism $\bI\to\bB$, and the algorithm runs in polynomial time provided that
 \begin{enumerate}[label=(\alph*)]
   \item a solution as in step (1), together with $j$, can be \emph{found} in polynomial time; and
   \item for every element $v$, the value $f_j(\pi_v)$, which depends only on $j$ and $p_v$, can be \emph{computed} from $p_v$ in polynomial time.
