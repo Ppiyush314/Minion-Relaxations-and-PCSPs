@@ -73,9 +73,9 @@ One of the central results of the algebraic theory of promise constraint satisfa
 
 The primary objective of these notes is twofold: (1) to give a self-contained and rigorous proof of this characterisation (theorem~\ref{thm:pcsp}), passing through label cover; and (2) to derive from it, by a single recipe (theorem~\ref{thm:generic}), the characterisations of arc consistency, the basic LP relaxation, the affine integer relaxation and their combination. We assume some familiarity with relational structures and polymorphisms, but no category theory beyond what section~\ref{sec:min} introduces.
 
-To start off with, section~\ref{sec:min} introduces functors, natural transformations and minions. Section~\ref{sec:lc} introduces label cover, the problem through which minions and PCSPs meet, and section~\ref{sec:relax} defines the relaxation of label cover given by a minion. In section~\ref{sec:pcsp} we translate PCSPs into label cover and prove the characterisation.
+To start off with, section~\ref{sec:min} introduces functors, natural transformations and minions. Section~\ref{sec:lc} introduces label cover, the problem through which minions and PCSPs meet, and section~\ref{sec:relax} defines the relaxation of label cover given by a minion. In section~\ref{sec:pcsp} we translate PCSPs into label cover, prove the characterisation, and discuss the search version of PCSPs together with rounding.
 
-Section~\ref{sec:app} turns it into a recipe, which organises the rest of the notes: whether a relaxation solves $\PCSP(\bA,\bB)$ comes down to which minor identities certain generic elements of its minion satisfy. We apply this to the four algorithms above, with the template $(\OIT,\NAE)$ of example~\ref{ex:1in3} as a running example of a promise problem that is not a CSP, and compare the four relaxations in section~\ref{sec:compare}.
+Section~\ref{sec:app} turns it into a recipe, which organises the rest of the notes: whether a relaxation solves $\PCSP(\bA,\bB)$ comes down to which minor identities certain generic elements of its minion satisfy. We apply this to the four algorithms above, with the template $(\OIT,\NAE)$ of example~\ref{ex:1in3} as a running example of a promise problem that is not a CSP, compare the four relaxations in section~\ref{sec:compare}, and return to rounding for them in section~\ref{sec:rounding}.
 
 %=====================================================================
 \section{Structures, Functors and Minions}\label{sec:min}
@@ -435,6 +435,54 @@ A minion homomorphism $\xi\colon\M\to\N$ gives a homomorphism $\xi_A\colon\bF_\M
 If the $\M$-relaxation solves $\PCSP(\bA,\bB)$, we thus have $\bA\to\bF_\M(\bA)\to\bB$, and by lemma~\ref{lem:free-sol} the problem $\CSP(\bF_\M(\bA))$ is decided by the $\M$-relaxation itself. Every relaxation that solves a template thus exhibits a (usually infinite) structure sandwiched between $\bA$ and $\bB$ whose CSP it solves. For arc consistency, $\bF_\Hm(\bA)$ is the power structure of Feder and Vardi \cite{FV}.
 \end{remark}
 
+\subsection{The Search Version}\label{sec:search}
+
+So far we have only considered the \emph{decision} version of $\PCSP(\bA,\bB)$, in which an algorithm only has to accept or reject.
+
+\begin{definition}[the search version]
+The \emph{search version} of $\PCSP(\bA,\bB)$ is the following problem: given a finite $\tau$-structure $\bI$ with $\bI\to\bA$, find a homomorphism $\bI\to\bB$.
+\end{definition}
+
+Under the promise a homomorphism $\bI\to\bB$ always exists, since $\bI\to\bA\to\bB$, and on instances with $\bI\not\to\bA$ any output (or none) is allowed. Note that we only ask for a homomorphism into the weaker structure $\bB$, not into $\bA$.
+
+\begin{lemma}\label{lem:dec-search}
+The decision version of $\PCSP(\bA,\bB)$ reduces in polynomial time to its search version.
+\end{lemma}
+
+\begin{proof}
+Given $\bI$, run a polynomial-time algorithm for the search version (stopped after its time bound, since on instances outside the promise it need not halt), and accept if and only if its output is a homomorphism $\bI\to\bB$, which can be checked in polynomial time. If $\bI\to\bA$, the output is such a homomorphism, so we accept, and if $\bI\not\to\bB$, there is no such homomorphism, so we reject.
+\end{proof}
+
+Whether the converse holds is open, and this is one of the central questions about PCSPs \cite{BGWZ,Lar}. For CSPs (that is, for $\bA=\bB$) the two versions are polynomial-time equivalent \cite{Coh}. The standard argument fixes the values of the elements of $\bI$ one at a time, each time using the decision procedure to check that the values fixed so far still extend to a solution. For PCSPs this self-reduction breaks down: once an element has been fixed to a value of $B$, the new instance need not satisfy the promise any more (it may map to $\bB$ without mapping to $\bA$), and on such instances the answer of the decision procedure carries no information.
+
+Relaxations nevertheless come with a natural strategy for the search version, through the following maps.
+
+\begin{definition}[rounding maps]
+Let $\M$ be a minion. A \emph{rounding map} for the $\M$-relaxation of $\PCSP(\bA,\bB)$ is a homomorphism $h\colon\bF_\M(\bA)\to\bB$.
+\end{definition}
+
+By theorem~\ref{thm:pcsp}, a rounding map exists if and only if the $\M$-relaxation solves $\PCSP(\bA,\bB)$. It depends only on the template, and the name comes from what it does to $\M$-solutions.
+
+\begin{proposition}[solve, then round]\label{prop:round}
+Let $h$ be a rounding map for the $\M$-relaxation of $\PCSP(\bA,\bB)$, and let $(p_x)_x$ be an $\M$-solution of $\Sigma_{\bI}$. Then $v\mapsto h(p_v)$ is a homomorphism $\bI\to\bB$.
+\end{proposition}
+
+\begin{proof}
+By lemma~\ref{lem:free-sol}, $v\mapsto p_v$ is a homomorphism $\bI\to\bF_\M(\bA)$, and composing it with $h$ gives a homomorphism $\bI\to\bB$.
+\end{proof}
+
+If the $\M$-relaxation solves $\PCSP(\bA,\bB)$ and $h$ is a rounding map, this suggests the following algorithm for the search version, on an instance $\bI$ with $\bI\to\bA$.
+\begin{enumerate}[label=(\arabic*)]
+  \item Find an $\M$-solution $(p_x)_x$ of $\Sigma_{\bI}$, which exists by lemma~\ref{lem:sigma-sol} and theorem~\ref{thm:complete}.
+  \item Output $v\mapsto h(p_v)$.
+\end{enumerate}
+By proposition~\ref{prop:round} the output is correct, and the algorithm runs in polynomial time provided that
+\begin{enumerate}[label=(\alph*)]
+  \item an $\M$-solution of $\Sigma_{\bI}$ can be \emph{found} in polynomial time, and not merely shown to exist; and
+  \item $h$ can be \emph{evaluated} in polynomial time on the entries $p_v$ that occur, measured in their size as part of the input (for instance the number of bits of the rational numbers involved).
+\end{enumerate}
+We return to these two conditions for the four algorithms of section~\ref{sec:app} in section~\ref{sec:rounding}.
+
 %=====================================================================
 \section{Applications}\label{sec:app}
 
@@ -727,7 +775,7 @@ The algorithm BLP+AIP runs as follows.
 \end{enumerate}
 Each step takes polynomial time: the first two solve polynomially many linear programs, and the third is an integer system of linear equations, like the AIP.
 
-\begin{proposition}
+\begin{proposition}\label{prop:ba}
 BLP+AIP accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\Mba$-solution.
 \end{proposition}
 
@@ -801,6 +849,38 @@ Let $\mathbf C=(\{0,1\};\leq,\{0\},\{1\})$. The functions $\min$ of all arities 
 Let $\mathbf E=(\{0,1\};E_0,E_1)$ with $E_c=\{(x,y,z) : x+y+z\equiv c\pmod 2\}$. The function $x_1+\dots+x_{2L+1}\bmod 2$ is a symmetric and alternating polymorphism (applied to three rows whose columns lie in $E_c$, it gives a triple with sum $(2L+1)c\equiv c$), so AIP and BLP+AIP solve $\CSP(\mathbf E)$. BLP does not, since there is no symmetric binary polymorphism $f$. Indeed, the rows $(0,1),(0,1),(0,0)$ have columns in $E_0$, which gives $f(0,0)=0$, and the rows $(1,0),(0,1),(0,0)$ have columns in $E_1$, which gives $f(1,0)+f(0,1)\equiv1$, contradicting $f(1,0)=f(0,1)$.
 \end{example}
 
+
+%---------------------------------------------------------------------
+\subsection{Rounding}\label{sec:rounding}
+
+We now return to the search version (section~\ref{sec:search}) for the four algorithms above. Condition (a) of section~\ref{sec:search} holds for all of them: arc consistency produces its final sets, linear programming returns a rational feasible point of the BLP, the Hermite normal form produces an integer solution of the AIP, and BLP+AIP produces the pair $(q^*,z)$ of proposition~\ref{prop:ba}. Whether solving and then rounding gives an algorithm for the search version therefore depends on condition (b).
+
+The proofs of theorems~\ref{thm:generic} and~\ref{thm:pcsp} give the rounding explicitly, in terms of the polymorphisms satisfying the identities of the generic elements. Note that if $p_v=\M(\pi_v)(g_j)$ for an element $v$ of $\bI$, then $\pi_v$ is a function $X_j\to D_v=A$, that is, an element of $A^{X_j}$.
+
+\begin{proposition}[rounding through generic elements]\label{prop:round-generic}
+Assume (G) as in theorem~\ref{thm:generic}, and for every $j\in J$ let $f_j\in\Pol(\bA,\bB)(X_j)$ satisfy the identities of $g_j$. If $(p_x)_x$ is an $\M$-solution of $\Sigma_{\bI}$ with $p_x=\M(\pi_x)(g_j)$ for some $j\in J$ and functions $\pi_x\colon X_j\to D_x$, then
+\[
+v\mapsto f_j(\pi_v)
+\]
+is a homomorphism $\bI\to\bB$.
+\end{proposition}
+
+\begin{proof}
+By the proof of theorem~\ref{thm:generic}, the family $(f_x)_x$ with $f_x=\Pol(\bA,\bB)(\pi_x)(f_j)$ is a $\Pol(\bA,\bB)$-solution of $\Sigma_{\bI}$. The proof of (iii)$\Rightarrow$(ii) in theorem~\ref{thm:pcsp}, applied to the identity of $\Pol(\bA,\bB)$, shows that $f\mapsto f(\id_A)$ is a rounding map for the $\Pol(\bA,\bB)$-relaxation, so by proposition~\ref{prop:round} the map $v\mapsto f_v(\id_A)=f_j(\id_A\circ\pi_v)=f_j(\pi_v)$ is a homomorphism $\bI\to\bB$.
+\end{proof}
+
+In words, the entry at $v$ is rounded by applying $f_j$ to the list of elements of $A$ that make up $p_v$. For the four algorithms this reads as follows.
+
+\emph{Arc consistency.} Here $p_v$ is a nonempty set $S_v\subseteq A$, and by the proof of lemma~\ref{lem:gen-H} we may take $n=n_{\bA}$ for every instance (all the sets $p_v$ and $p_c$ have at most $n_{\bA}$ elements). The rounding sends $v$ to $f(s_1,\dots,s_{n_{\bA}})$, where $s_1,\dots,s_{n_{\bA}}$ lists $S_v$ with repetitions and $f$ is a fixed totally symmetric polymorphism of arity $n_{\bA}$. This is a lookup table on the finitely many nonempty subsets of $A$, fixed by the template, so (b) holds, and arc consistency solves the search version of $\PCSP(\bA,\bB)$ whenever it solves the decision version.
+
+\emph{AIP for $(\OIT,\NAE)$.} With the threshold polymorphisms of example~\ref{ex:1in3-aip}, the value $f_L(\pi_v)$ is $1$ if and only if $\sum_{i\text{ odd}}\pi_v(i)-\sum_{i\text{ even}}\pi_v(i)=z_v(1)$ is positive. So the rounding sends $v$ to $1$ if $z_v(1)\geq1$ and to $0$ otherwise, which can be computed from the number $z_v(1)$ without writing out the $2L+1$ arguments, and (b) holds. For instance, let $\bI$ have elements $u_1,u_2,u_3,u_4$ and the constraints $(u_1,u_2,u_3)$ and $(u_1,u_2,u_4)$, which is an instance with $\bI\to\OIT$ (send $u_1$ to $1$ and the others to $0$). Writing $x_i$ for $z_{u_i}(1)$, the integer solutions of the AIP are given by $x_1=s$, $x_2=t$ and $x_3=x_4=1-s-t$ for integers $s$ and $t$. If the solver returns $s=2$ and $t=1$, so that $x_3=x_4=-2$, the rounding sends $u_1,u_2$ to $1$ and $u_3,u_4$ to $0$. Both constraints become $(1,1,0)\in R^{\NAE}$, so this is a homomorphism to $\NAE$, although not one to $\OIT$.
+
+\emph{BLP.} Here $\pi_v$ lists each $a\in A$ exactly $n\,q_v(a)$ times, where $n$ is a common denominator of the whole BLP solution, and the rounding sends $v$ to $f_n(\pi_v)$ for a symmetric polymorphism $f_n$ of arity $n$. Two things can go wrong. The common denominator $n$ can be exponentially large in the size of $\bI$ (even though the numbers $q_v(a)$ themselves have polynomially many bits), so that merely writing down the arguments of $f_n$ takes exponential time, and one needs to be able to evaluate a symmetric polymorphism of exactly that arity. Sometimes the family of polymorphisms is regular enough that neither matters: for the Horn structure $\mathbf C$ of example~\ref{ex:horn}, with $f_n=\min$, the rounding just sends $v$ to $\min\supp q_v$.
+
+\emph{AIP and BLP+AIP in general.} The same problem arises with the arity $2L+1$ of the alternating or block-symmetric polymorphisms, since $L$ has to be at least $|z_x^-|$ for every entry (lemma~\ref{lem:gen-Z}), respectively equal to $Kn$ once the distributions have been modified as in the proof of lemma~\ref{lem:gen-BA}, and these numbers can again be exponentially large.
+
+That this is a genuine obstruction was shown by Larrauri \cite{Lar}: for BLP, AIP and BLP+AIP, rounding a solution of the relaxation to a homomorphism $\bI\to\bB$ can be as hard as any problem in the class TFNP of total search problems in NP. (The rounding task is of this kind, since by proposition~\ref{prop:round} a solution always exists, and a proposed solution can be checked in polynomial time.) This does not show that the search version of these templates is hard, since some other algorithm might solve it, but it shows that solving and then rounding does not always give an algorithm for the search version.
+
 \begin{remark}[further directions]\label{rem:further}
 Minion homomorphisms between polymorphism minions, of which example~\ref{ex:nat}(b) is the simplest case, also characterise gadget reductions between PCSPs \cite{BBKO,KO}, and Barto, Bulín, Krokhin and Opršal \cite{BBKO} derive NP-hardness of PCSPs from minion homomorphisms out of $\Pol(\bA,\bB)$ into suitable minions, combined with the NP-hardness of gap label cover.
 
@@ -826,6 +906,7 @@ Mottet \cite{Mottet} transfers results between PCSPs and CSPs of infinite struct
 \bibitem{dBE} N.~G.~de Bruijn, P.~Erdős. A colour problem for infinite graphs and a problem in the theory of relations. \emph{Indag.\ Math.} 13, 1951.
 \bibitem{CZ-CLAP} L.~Ciardo, S.~Živný. CLAP: A new algorithm for promise CSPs. \emph{SIAM J.~Comput.} 52(1), 2023. arXiv:2107.05018.
 \bibitem{CZ-tensors} L.~Ciardo, S.~Živný. Hierarchies of minion tests for PCSPs through tensors. In \emph{Proc.\ SODA}, 2023. arXiv:2207.02277.
+\bibitem{Coh} D.~A.~Cohen. Tractable decision for a constraint language implies tractable search. \emph{Constraints} 9(3), 2004.
 \bibitem{DP} V.~Dalmau, J.~Pearson. Closure functions and width 1 problems. In \emph{Proc.\ CP}, LNCS 1713, 1999.
 \bibitem{FV} T.~Feder, M.~Y.~Vardi. The computational structure of monotone monadic SNP and constraint satisfaction: a study through Datalog and group theory. \emph{SIAM J.~Comput.} 28(1), 1998.
 \bibitem{HJO} M.~Hadek, T.~Jakl, J.~Opršal. A categorical perspective on constraint satisfaction: the wonderland of adjunctions. In \emph{Proc.\ LICS}, 2026. arXiv:2503.10353.
