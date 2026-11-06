@@ -441,15 +441,15 @@ If the $\M$-relaxation solves $\PCSP(\bA,\bB)$, we thus have $\bA\to\bF_\M(\bA)\
 \subsection{The Recipe}\label{sec:recipe}
 
 \noindent\begin{minipage}{\linewidth}
-Theorem~\ref{thm:pcsp} turns the question ``does this algorithm solve $\PCSP(\bA,\bB)$?'' into a question about polymorphisms. To answer it concretely, we
+Theorem~\ref{thm:pcsp} turns the question ``does an algorithm $\mathcal{U}$ solve $\PCSP(\bA,\bB)$?'' into a question about polymorphisms. To answer it concretely, we
 \begin{enumerate}[label=(\arabic*)]
-  \item find a minion $\M$ such that the algorithm accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\M$-solution (because then the $\M$-relaxation solves $\PCSP(\bA,\bB)$ if and only if the algorithm solves $\PCSP(\bA,\bB)$);
+  \item find a minion $\M$ such that $\mathcal{U}$ accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\M$-solution (because then the $\M$-relaxation solves $\PCSP(\bA,\bB)$ if and only if $\mathcal{U}$ solves $\PCSP(\bA,\bB)$);
   \item find \emph{generic} elements of $\M$, such that every instance with an $\M$-solution has one consisting of minors of a single generic element;
   \item determine which minor identities these generic elements satisfy.
 \end{enumerate}
 \end{minipage}
 
-The algorithm then solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ has elements satisfying the same identities. We first prove this in general, and then apply it to four algorithms.
+Then $\mathcal{U}$ solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ has elements satisfying the same identities. We first prove this in general, and then apply it to four algorithms.
 
 \begin{definition}[identities]\label{def:identities}
 Let $g\in\M(X)$ and $f\in\N(X)$. We say that $f$ \emph{satisfies the identities of} $g$ if, for every finite set $D$ and all functions $\pi,\pi'\colon X\to D$,
