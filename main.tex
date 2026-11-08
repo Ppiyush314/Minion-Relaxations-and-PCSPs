@@ -557,17 +557,17 @@ The minion $\Qc$ consists of the rational probability distributions, with pushfo
 
 Here an empty sum is $0$, so a point $y\in Y$ outside the image of $\pi$ receives weight $0$. Since every $x\in X$ contributes to a single $y$ (namely $\pi(x)$), the pushforward again has total weight $1$.
 
-Fix an instance $\bI$. The \emph{basic LP relaxation} $\BLP_{\bA}(\bI)$ of $\bI$ is the following system of linear equations. It has
+Fix an instance $\bI$. $\BLP_{\bA}(\bI)$ is the following system with variables
 \begin{itemize}
-  \item an unknown $\mu_v(a)$ for every element $v\in I$ and every $a\in A$, and
-  \item an unknown $\mu_c(r)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and every $r\in R^{\bA}$,
+  \item $\mu_v(a)$ for every element $v\in I$ and every $a\in A$, and
+  \item $\mu_c(r)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and every $r\in R^{\bA}$,
 \end{itemize}
 each of which takes values in $\Q\cap[0,1]$, and its equations are
 \begin{enumerate}
   \item[(B1)] $\displaystyle\sum_{a\in A}\mu_v(a)=1$ for every $v\in I$, and
   \item[(B2)] $\displaystyle\sum_{r\in R^{\bA},\ r_i=a}\mu_c(r)=\mu_{v_i}(a)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$, every $i\in[k]$ and every $a\in A$.
 \end{enumerate}
-A \emph{solution} of $\BLP_{\bA}(\bI)$ is an assignment of values in $\Q\cap[0,1]$ to the unknowns satisfying (B1) and (B2), and $\BLP_{\bA}(\bI)$ is \emph{feasible} if it has a solution.
+A \emph{solution} of $\BLP_{\bA}(\bI)$ is an assignment of values in $\Q\cap[0,1]$ to the variables satisfying (B1) and (B2), and $\BLP_{\bA}(\bI)$ is \emph{feasible} if it has a solution.
 
 In a solution, $\mu_v$ is a probability distribution on $A$ for each element $v$, which one may think of as a fractional value of $v$, and $\mu_c$ is a function $R^{\bA}\to\Q_{\geq0}$ for each constraint $c$ whose $i$-th marginal, by (B2), is $\mu_{v_i}$. Summing (B2) over $a\in A$ and using (B1) shows that $\mu_c$ has total weight $1$, so $\mu_c$ is a probability distribution on $R^{\bA}$, a fractional choice of a tuple for $c$ that is consistent with the fractional values of $v_1,\dots,v_k$.
 
