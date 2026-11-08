@@ -52,6 +52,8 @@
 \newcommand{\PCSP}{\mathrm{PCSP}}
 \newcommand{\CSP}{\mathrm{CSP}}
 \newcommand{\pip}{{\pi'}}
+\newcommand{\BLP}{\mathrm{BLP}}
+\newcommand{\AIP}{\mathrm{AIP}}
 
 \title{Minions and Relaxations of Promise CSPs}
 \author{Piyush Vasudha Naresh\\
@@ -555,14 +557,33 @@ The minion $\Qc$ consists of the rational probability distributions, with pushfo
 
 Here an empty sum is $0$, so a point $y\in Y$ outside the image of $\pi$ receives weight $0$. Since every $x\in X$ contributes to a single $y$ (namely $\pi(x)$), the pushforward again has total weight $1$.
 
-The \emph{basic LP relaxation} (BLP) of an instance $\bI$ is the following system. Its unknowns are a number $\mu_v(a)$ for every $v\in I$ and $a\in A$, and a number $\mu_c(r)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and every $r\in R^{\bA}$, subject to
-\begin{gather*}
-\mu_v(a)\geq0,\qquad\mu_c(r)\geq0,\qquad\sum_{a\in A}\mu_v(a)=1\quad\text{for every } v\in I,\\
-\sum_{r\in R^{\bA},\ r_i=a}\mu_c(r)=\mu_{v_i}(a)\quad\text{for every } c=((v_1,\dots,v_k),R),\ i\in[k] \text{ and } a\in A.
-\end{gather*}
-Thus $\mu_v$ is a probability distribution on $A$ for each element $v$, and $\mu_c$ is a distribution on $R^{\bA}$ for each constraint $c$, whose $i$-th marginal is $\mu_{v_i}$ (that $\mu_c$ has total weight $1$ follows by summing a marginal equation over $a$). The left-hand side of the marginal equation is $\Qc(\pr_i)(\mu_c)(a)$, so the feasible points of the BLP with rational values are the $\Qc$-solutions of $\Sigma_{\bI}$, with $p_v=\mu_v$ and $p_c=\mu_c$.
+Fix an instance $\bI$. The \emph{basic LP relaxation} $\BLP_{\bA}(\bI)$ of $\bI$ is the following system of linear equations. It has
+\begin{itemize}
+  \item an unknown $\mu_v(a)$ for every element $v\in I$ and every $a\in A$, and
+  \item an unknown $\mu_c(r)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and every $r\in R^{\bA}$,
+\end{itemize}
+each of which takes values in $\Q\cap[0,1]$, and its equations are
+\begin{enumerate}
+  \item[(B1)] $\displaystyle\sum_{a\in A}\mu_v(a)=1$ for every $v\in I$, and
+  \item[(B2)] $\displaystyle\sum_{r\in R^{\bA},\ r_i=a}\mu_c(r)=\mu_{v_i}(a)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$, every $i\in[k]$ and every $a\in A$.
+\end{enumerate}
+A \emph{solution} of $\BLP_{\bA}(\bI)$ is an assignment of values in $\Q\cap[0,1]$ to the unknowns satisfying (B1) and (B2), and $\BLP_{\bA}(\bI)$ is \emph{feasible} if it has a solution.
 
-The algorithm BLP accepts $\bI$ if this system is feasible, which linear programming decides in polynomial time. The system has rational coefficients, so it is feasible over $\mathbb R$ if and only if it is feasible over $\Q$, and hence BLP accepts $\bI$ if and only if $\Sigma_{\bI}$ has a $\Qc$-solution.
+In a solution, $\mu_v$ is a probability distribution on $A$ for each element $v$, which one may think of as a fractional value of $v$, and $\mu_c$ is a function $R^{\bA}\to\Q_{\geq0}$ for each constraint $c$ whose $i$-th marginal, by (B2), is $\mu_{v_i}$. Summing (B2) over $a\in A$ and using (B1) shows that $\mu_c$ has total weight $1$, so $\mu_c$ is a probability distribution on $R^{\bA}$, a fractional choice of a tuple for $c$ that is consistent with the fractional values of $v_1,\dots,v_k$.
+
+\begin{definition}[the algorithm BLP]
+The algorithm \emph{BLP} accepts $\bI$ if $\BLP_{\bA}(\bI)$ is feasible, and rejects it otherwise.
+\end{definition}
+
+That this is a polynomial-time algorithm is a matter of linear programming. A \emph{linear program} is a finite system of linear equations and inequalities with rational coefficients in real unknowns (possibly together with a linear function of the unknowns to be maximised), and $\BLP_{\bA}(\bI)$ is one, with the inequalities $0\leq\mu_v(a)\leq1$ and $0\leq\mu_c(r)\leq1$. Linear programs can be solved in polynomial time, by the ellipsoid method or by interior point methods \cite{Sch}: there is an algorithm that decides whether a given linear program has a real solution and, if it does, outputs one with rational coordinates (an optimal one, if a function is to be maximised and is bounded), in time polynomial in the size of the program. In particular, a linear program has a real solution if and only if it has a rational one, so it makes no difference that we ask for rational values. Since $\bA$ is fixed, the size of $\BLP_{\bA}(\bI)$ is polynomial in the size of $\bI$, so BLP runs in polynomial time. Note also that the algorithm does not only answer yes or no, but finds an actual solution of $\BLP_{\bA}(\bI)$; this will matter in section~\ref{sec:search-round}.
+
+\begin{proposition}\label{prop:blp}
+BLP accepts $\bI$ if and only if $\Sigma_{\bI}$ has a $\Qc$-solution.
+\end{proposition}
+
+\begin{proof}
+For a constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and $\mu_c\colon R^{\bA}\to\Q_{\geq0}$, the left-hand side of (B2) is $\Qc(\pr_i)(\mu_c)(a)$, the pushforward of $\mu_c$ along $\pr_i\colon R^{\bA}\to A$, evaluated at $a$. So by the discussion above, a solution of $\BLP_{\bA}(\bI)$ is the same as a family of distributions $p_v=\mu_v\in\Qc(A)$ for $v\in I$ and $p_c=\mu_c\in\Qc(R^{\bA})$ for the constraints $c$ of $\bI$ with $\Qc(\pr_i)(p_c)=p_{v_i}$ for all $c$ and $i$, that is, a $\Qc$-solution of $\Sigma_{\bI}$.
+\end{proof}
 
 \begin{definition}[symmetric functions]
 A function $f\colon A^n\to B$ is \emph{symmetric} if, for every permutation $\sigma$ of $[n]$ and all $x_1,\dots,x_n\in A$,
@@ -588,7 +609,7 @@ BLP solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ contains symmetric po
 \end{theorem}
 
 \begin{proof}
-Combine theorem~\ref{thm:generic} with lemma~\ref{lem:gen-Q}.
+Combine proposition~\ref{prop:blp}, theorem~\ref{thm:generic} and lemma~\ref{lem:gen-Q}.
 \end{proof}
 
 \begin{example}[the triangle]\label{ex:triangle}
@@ -617,7 +638,21 @@ The minion $\Za$ is given by
 
 As for $\Qc$, an empty sum is $0$, so points outside the image of $\pi$ receive weight $0$, and the total weight $1$ is preserved. Unlike for $\Qc$, a point in the image may also receive weight $0$, when contributions $+1$ and $-1$ cancel.
 
-The \emph{affine integer relaxation} (AIP) of $\bI$ is the BLP of $\bI$ without the inequalities $\mu_v(a)\geq0$ and $\mu_c(r)\geq0$, to be solved in integers. The algorithm AIP accepts $\bI$ if this system has an integer solution, which can be decided in polynomial time (for instance via the Hermite normal form). As for BLP, the integer solutions are the $\Za$-solutions of $\Sigma_{\bI}$, so AIP accepts $\bI$ if and only if $\Sigma_{\bI}$ has a $\Za$-solution.
+Fix an instance $\bI$. The \emph{affine integer relaxation} $\AIP_{\bA}(\bI)$ of $\bI$ is the system with the same unknowns and the same equations (B1) and (B2) as $\BLP_{\bA}(\bI)$, but in which the unknowns take values in $\Z$. A \emph{solution} of $\AIP_{\bA}(\bI)$ is an assignment of integers to the unknowns satisfying (B1) and (B2). Compared with $\BLP_{\bA}(\bI)$, the values are now integers, but they may be negative.
+
+\begin{definition}[the algorithm AIP]
+The algorithm \emph{AIP} accepts $\bI$ if $\AIP_{\bA}(\bI)$ has a solution, and rejects it otherwise.
+\end{definition}
+
+Whether a system of linear equations with integer coefficients has an integer solution can be decided in polynomial time, by bringing the system into Hermite normal form (an analogue of Gaussian elimination over $\Z$), and if there is an integer solution, this also produces one \cite{Sch}. So AIP runs in polynomial time and, like BLP, finds an actual solution. It is essential that there are no inequalities here: deciding whether a system of linear equations and inequalities has an integer solution (integer programming) is NP-complete, which is why AIP drops the nonnegativity of $\BLP_{\bA}(\bI)$ rather than adding integrality to it.
+
+\begin{proposition}\label{prop:aip}
+AIP accepts $\bI$ if and only if $\Sigma_{\bI}$ has a $\Za$-solution.
+\end{proposition}
+
+\begin{proof}
+As in the proof of proposition~\ref{prop:blp}, summing (B2) over $a$ shows that each $\mu_c$ has total weight $1$, and the left-hand side of (B2) is $\Za(\pr_i)(\mu_c)(a)$. So a solution of $\AIP_{\bA}(\bI)$ is the same as a family $p_v=\mu_v\in\Za(A)$ and $p_c=\mu_c\in\Za(R^{\bA})$ with $\Za(\pr_i)(p_c)=p_{v_i}$ for all $c$ and $i$, that is, a $\Za$-solution of $\Sigma_{\bI}$.
+\end{proof}
 
 \begin{definition}[alternating functions]
 A function $f\colon A^{2L+1}\to B$ is \emph{alternating} if
@@ -671,7 +706,7 @@ AIP solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ contains an alternati
 \end{theorem}
 
 \begin{proof}
-Combine theorem~\ref{thm:generic} with lemma~\ref{lem:gen-Z}.
+Combine proposition~\ref{prop:aip}, theorem~\ref{thm:generic} and lemma~\ref{lem:gen-Z}.
 \end{proof}
 
 \begin{example}[1-in-3 versus NAE]\label{ex:1in3-aip}
@@ -687,7 +722,7 @@ and the map sending $x$ to $1$ if $x\geq1$ and to $0$ otherwise is a homomorphis
 %---------------------------------------------------------------------
 \subsection{Combining BLP and AIP}\label{sec:ba}
 
-The combined relaxation asks for an integer solution of the AIP that lives inside the support of a fractional solution of the BLP.
+The combined relaxation asks for a solution of $\AIP_{\bA}(\bI)$ that lives inside the support of a solution of $\BLP_{\bA}(\bI)$.
 
 \begin{definition}[the minion of BLP+AIP]
 The minion $\Mba$ is given by
@@ -718,11 +753,11 @@ The set $S^*$ is finite, and it is nonempty because each $q_x$ has total weight 
 
 The algorithm BLP+AIP runs as follows.
 \begin{enumerate}[label=(\arabic*)]
-  \item If $\Sigma_{\bI}$ has no $\Qc$-solution (that is, if the BLP of $\bI$ is infeasible), reject.
-  \item Compute a $\Qc$-solution $q^*$ with $\supp q^*=S^*$. For this, solve for each pair $(x,d)$ the linear program maximising $q_x(d)$ subject to the BLP of $\bI$. Then $(x,d)\in S^*$ if and only if the maximum is positive, and the average of the (rational) optimal solutions for the pairs in $S^*$ is such a $q^*$, as in the proof of lemma~\ref{lem:max-support}.
-  \item Accept if $\Sigma_{\bI}$ has a $\Za$-solution $z$ with $z_x(d)=0$ for every $(x,d)\notin S^*$ (that is, if the AIP of $\bI$ together with these equations has an integer solution), and reject otherwise.
+  \item If $\Sigma_{\bI}$ has no $\Qc$-solution (that is, if $\BLP_{\bA}(\bI)$ is infeasible), reject.
+  \item Compute a $\Qc$-solution $q^*$ with $\supp q^*=S^*$. For this, solve for each pair $(x,d)$ the linear program maximising $q_x(d)$ subject to $\BLP_{\bA}(\bI)$. Then $(x,d)\in S^*$ if and only if the maximum is positive, and the average of the (rational) optimal solutions for the pairs in $S^*$ is such a $q^*$, as in the proof of lemma~\ref{lem:max-support}.
+  \item Accept if $\Sigma_{\bI}$ has a $\Za$-solution $z$ with $z_x(d)=0$ for every $(x,d)\notin S^*$ (that is, if $\AIP_{\bA}(\bI)$ together with these equations has a solution), and reject otherwise.
 \end{enumerate}
-Each step takes polynomial time: the first two solve polynomially many linear programs, and the third is an integer system of linear equations, like the AIP.
+Each step takes polynomial time: the first two solve polynomially many linear programs, and the third is an integer system of linear equations, like $\AIP_{\bA}(\bI)$.
 
 \begin{proposition}\label{prop:ba}
 BLP+AIP accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\Mba$-solution.
@@ -761,7 +796,7 @@ BLP+AIP solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ contains an $(L+1
 \end{theorem}
 
 \begin{proof}
-Combine theorem~\ref{thm:generic} with lemma~\ref{lem:gen-BA}.
+Combine proposition~\ref{prop:ba}, theorem~\ref{thm:generic} and lemma~\ref{lem:gen-BA}.
 \end{proof}
 
 \begin{remark}[decidability]
@@ -861,8 +896,8 @@ Condition (a) concerns the relaxation and condition (b) the polymorphisms. The d
 We now check conditions (a) and (b) for the four algorithms of section~\ref{sec:app}, with the generic elements of lemmas~\ref{lem:gen-H}, \ref{lem:gen-Q}, \ref{lem:gen-Z} and~\ref{lem:gen-BA}. Condition (a) holds for all of them:
 \begin{itemize}
   \item arc consistency produces its final sets, which are minors of $g_{n_{\bA}}=[n_{\bA}]$;
-  \item linear programming returns a rational feasible point of the BLP, whose entries are minors of $u_n$ for a common denominator $n$ of its values;
-  \item the Hermite normal form produces an integer solution of the AIP, whose entries are minors of $a_L$ for any $L\geq1$ with $L\geq|z_x^-|$ for every entry $z_x$;
+  \item BLP finds a solution of $\BLP_{\bA}(\bI)$, whose entries are minors of $u_n$ for a common denominator $n$ of its values;
+  \item AIP finds a solution of $\AIP_{\bA}(\bI)$, whose entries are minors of $a_L$ for any $L\geq1$ with $L\geq|z_x^-|$ for every entry $z_x$;
   \item BLP+AIP produces the pair $(q^*,z)$ of proposition~\ref{prop:ba}, which the proof of lemma~\ref{lem:gen-BA} turns into a solution $(q',z)$ made of minors of a single $g_L$, by a computation with numbers of polynomially many bits.
 \end{itemize}
 Whether solving and then rounding gives an algorithm for the search version therefore depends on condition (b), which we now consider case by case.
@@ -871,7 +906,7 @@ Whether solving and then rounding gives an algorithm for the search version ther
 
 \emph{AIP for $(\OIT,\NAE)$.} With the threshold polymorphisms of example~\ref{ex:1in3-aip}, the value $f_L(\pi_v)$ is $1$ if and only if $\sum_{i\text{ odd}}\pi_v(i)-\sum_{i\text{ even}}\pi_v(i)=z_v(1)$ is positive. So the rounding sends $v$ to $1$ if $z_v(1)\geq1$ and to $0$ otherwise, which can be computed from the number $z_v(1)$ without writing out the $2L+1$ arguments, and (b) holds. For instance, let $\bI$ have elements $u_1,u_2,u_3,u_4$ and the constraints $(u_1,u_2,u_3)$ and $(u_1,u_2,u_4)$, which is an instance with $\bI\to\OIT$ (send $u_1$ to $1$ and the others to $0$). Writing $x_i$ for $z_{u_i}(1)$, the integer solutions of the AIP are given by $x_1=s$, $x_2=t$ and $x_3=x_4=1-s-t$ for integers $s$ and $t$. If the solver returns $s=2$ and $t=1$, so that $x_3=x_4=-2$, the rounding sends $u_1,u_2$ to $1$ and $u_3,u_4$ to $0$. Both constraints become $(1,1,0)\in R^{\NAE}$, so this is a homomorphism to $\NAE$, although not one to $\OIT$.
 
-\emph{BLP.} Here $\pi_v$ lists each $a\in A$ exactly $n\,q_v(a)$ times, where $n$ is a common denominator of the whole BLP solution, and the rounding sends $v$ to $f_n(\pi_v)$ for a symmetric polymorphism $f_n$ of arity $n$. Two things can go wrong. The common denominator $n$ can be exponentially large in the size of $\bI$ (even though the numbers $q_v(a)$ themselves have polynomially many bits), so that merely writing down the arguments of $f_n$ takes exponential time, and one needs to be able to evaluate a symmetric polymorphism of exactly that arity. Sometimes the family of polymorphisms is regular enough that neither matters: for the Horn structure $\mathbf C$ of example~\ref{ex:horn}, with $f_n=\min$, the rounding just sends $v$ to $\min\supp q_v$.
+\emph{BLP.} Here $\pi_v$ lists each $a\in A$ exactly $n\,q_v(a)$ times, where $n$ is a common denominator of the whole solution of $\BLP_{\bA}(\bI)$, and the rounding sends $v$ to $f_n(\pi_v)$ for a symmetric polymorphism $f_n$ of arity $n$. Two things can go wrong. The common denominator $n$ can be exponentially large in the size of $\bI$ (even though the numbers $q_v(a)$ themselves have polynomially many bits), so that merely writing down the arguments of $f_n$ takes exponential time, and one needs to be able to evaluate a symmetric polymorphism of exactly that arity. Sometimes the family of polymorphisms is regular enough that neither matters: for the Horn structure $\mathbf C$ of example~\ref{ex:horn}, with $f_n=\min$, the rounding just sends $v$ to $\min\supp q_v$.
 
 \emph{AIP and BLP+AIP in general.} The same problem arises with the arity $2L+1$ of the alternating or block-symmetric polymorphisms, since $L$ has to be at least $|z_x^-|$ for every entry (lemma~\ref{lem:gen-Z}), respectively equal to $Kn$ once the distributions have been modified as in the proof of lemma~\ref{lem:gen-BA}, and these numbers can again be exponentially large.
 
@@ -891,7 +926,6 @@ That this is a genuine obstruction was shown by Larrauri \cite{Lar}: for BLP, AI
 \begin{thebibliography}{99}
 \bibitem{BBKO} L.~Barto, J.~Bulín, A.~Krokhin, J.~Opršal. Algebraic approach to promise constraint satisfaction. \emph{J.~ACM} 68(4), 2021. arXiv:1811.00970.
 \bibitem{BGWZ} J.~Brakensiek, V.~Guruswami, M.~Wrochna, S.~Živný. The power of the combined basic linear programming and affine relaxation for promise constraint satisfaction problems. \emph{SIAM J.~Comput.} 49(6), 2020. arXiv:1907.04383.
-\bibitem{dBE} N.~G.~de Bruijn, P.~Erdős. A colour problem for infinite graphs and a problem in the theory of relations. \emph{Indag.\ Math.} 13, 1951.
 \bibitem{CZ-CLAP} L.~Ciardo, S.~Živný. CLAP: A new algorithm for promise CSPs. \emph{SIAM J.~Comput.} 52(1), 2023. arXiv:2107.05018.
 \bibitem{CZ-tensors} L.~Ciardo, S.~Živný. Hierarchies of minion tests for PCSPs through tensors. In \emph{Proc.\ SODA}, 2023. arXiv:2207.02277.
 \bibitem{Coh} D.~A.~Cohen. Tractable decision for a constraint language implies tractable search. \emph{Constraints} 9(3), 2004.
@@ -901,9 +935,8 @@ That this is a genuine obstruction was shown by Larrauri \cite{Lar}: for BLP, AI
 \bibitem{KO} A.~Krokhin, J.~Opršal. An invitation to the promise constraint satisfaction problem. \emph{ACM SIGLOG News} 9(3), 2022. arXiv:2208.13538.
 \bibitem{KOTYZ} G.~Kun, R.~O'Donnell, S.~Tamaki, Y.~Yoshida, Y.~Zhou. Linear programming, width-1 CSPs, and robust satisfaction. In \emph{Proc.\ ITCS}, 2012.
 \bibitem{Lar} A.~Larrauri. Ineffectiveness for search and undecidability of PCSP meta-problems. arXiv:2504.04639, 2025.
-\bibitem{Lau} H.~Läuchli. Coloring infinite graphs and the Boolean prime ideal theorem. \emph{Israel J.~Math.} 9, 1971.
 \bibitem{Mottet} A.~Mottet. Algebraic and algorithmic synergies between promise and infinite-domain CSPs. In \emph{Proc.\ LICS}, 2025. arXiv:2501.13740.
-\bibitem{RTW} D.~Rorabaugh, C.~Tardif, D.~Wehlau. Logical compactness and constraint satisfaction problems. \emph{Log.\ Methods Comput.\ Sci.} 13(1), 2017. arXiv:1609.05221.
+\bibitem{Sch} A.~Schrijver. \emph{Theory of Linear and Integer Programming}. Wiley, 1986.
 \bibitem{Zhuk} D.~Zhuk. Singleton algorithms for the constraint satisfaction problem. arXiv:2509.18434, 2025.
 \end{thebibliography}
 }
