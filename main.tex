@@ -108,8 +108,6 @@ A^Y\to B,\qquad y\mapsto f(y\circ\pi).
 
 The minor is again a polymorphism, since $y\mapsto y\circ\pi$ is a homomorphism $\bA^Y\to\bA^X$ (every coordinate of $y\circ\pi$ is a coordinate of $y$). For $X=[n]$ and $Y=[m]$ the minor is the function $(y_1,\dots,y_m)\mapsto f(y_{\pi(1)},\dots,y_{\pi(n)})$, so taking minors means identifying, permuting or adding dummy variables.
 
-For instance, the minors of the binary polymorphism $\min$ of $(\{0,1\};\leq)$ along $[2]\to[1]$, and along the map $[2]\to[3]$ with $1\mapsto1$ and $2\mapsto3$, are $(y_1)\mapsto y_1$ and $(y_1,y_2,y_3)\mapsto\min(y_1,y_3)$.
-
 \subsection{Functors}\label{sec:fun}
 
 A \emph{category} consists of objects, morphisms $f\colon X\to Y$ between them, an identity morphism $\id_X\colon X\to X$ for every object $X$, and a composite $g\circ f\colon X\to Z$ for all morphisms $f\colon X\to Y$ and $g\colon Y\to Z$, such that composition is associative and $f\circ\id_X=f=\id_Y\circ f$. We only need the category $\Set$ of sets and functions and the category $\FinSet$ of \emph{nonempty} finite sets and functions between them; another example is the category $\Str_\tau$ of $\tau$-structures and homomorphisms.
@@ -168,7 +166,7 @@ Minion homomorphisms compose componentwise, so $\M\to\N$ and $\N\to\N'$ give $\M
 \begin{example}\label{ex:minions}
 The functors of example~\ref{ex:functors} are minions.
 \begin{enumerate}[label=(\alph*)]
-  \item The inclusion is the \emph{projection minion} $\Pm$, with $\Pm(X)=X$ and $\Pm(\pi)=\pi$. An element $x\in X$ stands for the projection onto coordinate $x$, whose minor along $\pi$ is the projection onto coordinate $\pi(x)$. (For a structure $\bA$ with at least two elements, the projections $a\mapsto a(x)$ indeed form a copy of $\Pm$ inside $\Pol(\bA,\bA)$.)
+  \item The inclusion is the \emph{projection minion} $\Pm$, with $\Pm(X)=X$ and $\Pm(\pi)=\pi$.
   \item The nonempty power set functor is a minion $\Hm$, which will describe arc consistency (section~\ref{sec:ac}).
   \item $\Pol(\bA,\bB)$ is the \emph{polymorphism minion}, and we write $\Pol(\bA)=\Pol(\bA,\bA)$.
 \end{enumerate}
@@ -176,13 +174,13 @@ In these terms, example~\ref{ex:nat} gives a minion homomorphism $\Pm\to\Hm$, a 
 \end{example}
 
 \begin{remark}[identities]\label{rem:identities}
-Minion homomorphisms preserve every condition that is expressed through minors. For instance, call $p\in\M([n])$ \emph{symmetric} if $\M(\sigma)(p)=p$ for every permutation $\sigma$ of $[n]$. If $p$ is symmetric and $\xi\colon\M\to\N$ is a minion homomorphism, then $\N(\sigma)(\xi_{[n]}(p))=\xi_{[n]}(\M(\sigma)(p))=\xi_{[n]}(p)$, so $\xi_{[n]}(p)$ is symmetric as well. Since $\Pm$ has no symmetric elements of arity $n\geq2$, no minion with such an element maps to $\Pm$; this applies for instance to $\T$, whose element of arity $2$ is symmetric.
+Minion homomorphisms preserve every condition that is expressed through minors. For instance, call $p\in\M([n])$ \emph{symmetric} if $\M(\sigma)(p)=p$ for every permutation $\sigma$ of $[n]$. If $p$ is symmetric and $\xi\colon\M\to\N$ is a minion homomorphism, then $\N(\sigma)(\xi_{[n]}(p))=\xi_{[n]}(\M(\sigma)(p))=\xi_{[n]}(p)$, so $\xi_{[n]}(p)$ is symmetric as well. Since $\Pm$ has no symmetric elements of arity $n\geq2$, no minion with such an element maps to $\Pm$.
 \end{remark}
 
 \begin{remark}[empty and nonempty minions]\label{rem:nonempty}
-If $\M(X)\neq\varnothing$ for some $X$, then $\M(Y)\neq\varnothing$ for every $Y$, since for $p\in\M(X)$ and any function $\pi\colon X\to Y$ we have $\M(\pi)(p)\in\M(Y)$. Hence a minion is either empty, with $\M(X)=\varnothing$ for all $X$, or has elements of every arity, in which case we call it \emph{nonempty}. The empty minion is of no interest as a relaxation, and from section~\ref{sec:relax} on all minions are nonempty.
+If $\M(X)\neq\varnothing$ for some $X$, then $\M(Y)\neq\varnothing$ for every $Y$, since for $p\in\M(X)$ and any function $\pi\colon X\to Y$ we have $\M(\pi)(p)\in\M(Y)$. Hence a minion is either empty, with $\M(X)=\varnothing$ for all $X$, or has elements of every arity, in which case we call it \emph{nonempty}.
 
-Polymorphism minions can be empty: $\Pol(\bA,\bB)$ is nonempty if and only if $\bA\to\bB$. Indeed, a homomorphism $h\colon\bA\to\bB$ gives the polymorphisms $a\mapsto h(a(x))$, and conversely composing an $X$-ary polymorphism with the diagonal map $a\mapsto(x\mapsto a)$ gives a homomorphism $\bA\to\bB$.
+Polymorphism minions can be empty: $\Pol(\bA,\bB)$ is nonempty if and only if $\bA\to\bB$. Indeed, a homomorphism $h\colon\bA\to\bB$ is a polymorphisms $\bA^1\to\bB$, and conversely composing an $X$-ary polymorphism with the diagonal map $a\mapsto(x\mapsto a)$ gives a homomorphism $\bA\to\bB$.
 \end{remark}
 
 %=====================================================================
@@ -200,7 +198,7 @@ An \emph{instance} $\Sigma$ of label cover consists of
 A \emph{solution} of $\Sigma$ is a family $(a_x)_{x\in V}$ with $a_x\in D_x$ for every $x$, such that $\alpha(a_y)=a_x$ for every constraint $(x,y,\alpha)$. We write $\Sol(\Sigma)$ for the set of solutions.
 \end{definition}
 
-A constraint $(x,y,\alpha)$ says that the label of $y$ determines the label of $x$. We allow $x=y$, as well as several constraints between the same variables. Requiring $D_x\neq\varnothing$ costs nothing, as a variable without labels can never be labelled.
+A constraint $(x,y,\alpha)$ says that the label of $y$ determines the label of $x$. We allow $x=y$, as well as several constraints between the same variables.
 
 \begin{example}[encoding a binary constraint]\label{ex:binary}
 Let $R\subseteq D\times D$ be nonempty, with coordinate projections $\pr_1,\pr_2\colon R\to D$. Take variables $x_1,x_2,y$ with $D_{x_1}=D_{x_2}=D$ and $D_y=R$, and constraints $(x_1,y,\pr_1)$ and $(x_2,y,\pr_2)$. A solution is then a pair $a_y\in R$ together with its two coordinates $a_{x_1}$ and $a_{x_2}$, so the solutions correspond to the pairs in $R$. In this way any CSP instance can be written as a label cover instance (section~\ref{sec:pcsp}).
@@ -274,14 +272,14 @@ The $\M$-relaxation \emph{solves} label cover if $\Solm{\M}(\Sigma)\neq\varnothi
 
 By completeness, this means that the relaxation accepts precisely the instances that have a solution, and by monotonicity and example~\ref{ex:proj} this holds whenever there is a minion homomorphism $\M\to\Pm$.
 
-The converse also holds, although we will not need it. One views $\M$ itself as an infinite label cover instance, with a variable $(n,p)$ for every $n\geq1$ and $p\in\M([n])$, label set $[n]$, and a constraint $((m,\M(\pi)(p)),(n,p),\pi)$ for every $\pi\colon[n]\to[m]$. Its solutions are the minion homomorphisms $\M\to\Pm$ (given by their components at the sets $[n]$, see the footnote to definition~\ref{def:minion}), it has the $\M$-solution $(n,p)\mapsto p$, and a compactness argument (Tychonoff's theorem for the product of the finite discrete spaces $[n]$, one for each variable, or König's lemma when $\M$ is countable) passes from its finite parts to the whole.
+The converse also holds, although we will not need it. Suppose that the $\M$-relaxation solves label cover. We view $\M$ itself as an infinite label cover instance $\Sigma_\M$, with a variable $(n,p)$ for every $n\geq1$ and every $p\in\M([n])$, with label set $[n]$, and with a constraint $((m,\M(\pi)(p)),(n,p),\pi)$ for all $n,m\geq1$, $p\in\M([n])$ and $\pi\colon[n]\to[m]$. A solution of $\Sigma_\M$ assigns to every $p\in\M([n])$ a label $\xi_{[n]}(p)\in[n]$ such that $\pi(\xi_{[n]}(p))=\xi_{[m]}(\M(\pi)(p))$ for every $\pi\colon[n]\to[m]$, so the solutions of $\Sigma_\M$ are exactly the minion homomorphisms $\M\to\Pm$ (given by their components at the sets $[n]$, see the footnote to definition~\ref{def:minion}).
+
+Every finite part of $\Sigma_\M$ (finitely many variables, together with all the constraints between them, of which there are only finitely many) is a label cover instance with the $\M$-solution $(n,p)\mapsto p$, and hence, by assumption, has a solution. A compactness argument now gives a solution of the whole of $\Sigma_\M$. Indeed, the space $\prod_{(n,p)}[n]$ of all assignments, a product of finite discrete spaces, is compact by Tychonoff's theorem. Each constraint involves only two variables, so the assignments satisfying it form a closed set, and these closed sets have the finite intersection property, since any finitely many constraints lie in a finite part of $\Sigma_\M$, whose solution can be extended arbitrarily to the remaining variables. Their intersection is therefore nonempty, and any assignment in it is a solution of $\Sigma_\M$, that is, a minion homomorphism $\M\to\Pm$.
 
 Since $\Pm\to\M$ always holds (lemma~\ref{lem:proj-hom}), the $\M$-relaxation solves label cover if and only if $\M$ and $\Pm$ are homomorphically equivalent.
 
 \begin{remark}[why $\M\to\Pm$ is too strong]\label{rem:too-strong}
 Label cover is NP-complete, so (unless $\mathrm P=\mathrm{NP}$) no relaxation that can be checked in polynomial time solves it. For promise CSPs, however, much less is needed. In section~\ref{sec:pcsp} we translate an instance $\bI$ of $\PCSP(\bA,\bB)$ into a label cover instance $\Sigma_{\bI}$ of a special shape, and the relaxation then only needs to be correct on instances of this shape, and only up to the promise: an accepted instance must map to $\bB$, but not necessarily to $\bA$. Under these weaker demands the condition $\M\to\Pm$ becomes $\M\to\Pol(\bA,\bB)$.
-
-This is a real weakening. A homomorphism $h\colon\bA\to\bB$ gives a minion homomorphism $\Pm\to\Pol(\bA,\bB)$, sending $x\in X$ to $a\mapsto h(a(x))$, so $\M\to\Pm$ implies $\M\to\Pol(\bA,\bB)$ for every template. The converse fails badly, since $\Pol(\bA,\bB)$ may contain symmetric elements of arity at least $2$, which $\Pm$ never does (remark~\ref{rem:identities}). For instance, $\min$ is a symmetric binary polymorphism of the Horn structure $\mathbf C$ of example~\ref{ex:horn}.
 \end{remark}
 
 %=====================================================================
@@ -294,7 +292,7 @@ A \emph{PCSP template} is a pair $(\bA,\bB)$ of finite $\tau$-structures with $\
   \item accept if $\bI\to\bA$, and
   \item reject if $\bI\not\to\bB$.
 \end{itemize}
-The two cases are disjoint, since $\bI\to\bA\to\bB$ gives $\bI\to\bB$, and on instances in neither case, any answer is allowed. For $\bA=\bB$ this is just $\CSP(\bA)$.
+The two cases are disjoint, since $\bI\to\bA\to\bB$ gives $\bI\to\bB$, and on instances in neither case, any output (or none) is allowed. For $\bA=\bB$ this is just $\CSP(\bA)$.
 
 \begin{example}[1-in-3 versus NAE]\label{ex:1in3}
 Let $\OIT$ and $\NAE$ be the structures on $\{0,1\}$ with a single ternary relation, given by
@@ -371,7 +369,7 @@ The \emph{$\M$-relaxation of $\PCSP(\bA,\bB)$} accepts $\bI$ if $\Sigma_{\bI}$ h
 
 The other half of correctness is automatic: if $\bI\to\bA$, then $\Sigma_{\bI}$ has a solution (lemma~\ref{lem:sigma-sol}), hence an $\M$-solution (theorem~\ref{thm:complete}), so $\bI$ is accepted. Thus the $\M$-relaxation solves $\PCSP(\bA,\bB)$ precisely when it is a correct algorithm for it.
 
-In the proof of theorem~\ref{thm:pcsp} we use the compactness theorem for homomorphisms, a standard consequence of the compactness theorem of propositional logic (for graph colourings, it is the theorem of de Bruijn and Erdős \cite{dBE}).
+In the proof of theorem~\ref{thm:pcsp} we use the compactness theorem for homomorphisms, a standard consequence of the compactness theorem of propositional logic.
 
 \begin{lemma}[compactness]\label{lem:compactness}
 Let $\bB$ be a finite $\tau$-structure. A possibly infinite $\tau$-structure $\mathbf S$ maps to $\bB$ if and only if every finite substructure of $\mathbf S$ maps to $\bB$.
@@ -380,9 +378,7 @@ Let $\bB$ be a finite $\tau$-structure. A possibly infinite $\tau$-structure $\m
 \begin{remark}[choice]\label{rem:choice}
 For countable $\mathbf S$ no choice is needed, as König's lemma suffices (enumerate $\mathbf S$ and order $B$; the homomorphisms from the substructures on the first $n$ elements form a finitely branching tree, and the ordering allows a canonical choice of branch).
 
-For uncountable $\mathbf S$ some choice is needed. Over ZF, the lemma for all finite $\bB$ is equivalent to the Boolean prime ideal theorem, which is weaker than the axiom of choice, and already the case $\bB=K_3$ is equivalent to it (Läuchli \cite{Lau}). For a fixed $\bB$ the lemma can be weaker: for $\bB=K_2$ it amounts to choice for families of two-element sets, and for $\bB$ of width one (that is, when arc consistency solves $\CSP(\bB)$) it holds in ZF; see Rorabaugh, Tardif and Wehlau \cite{RTW} for how the strength depends on $\bB$.
-
-In our applications $\mathbf S=\bF_\M(\bA)$, which is countable whenever $\M(A)$ is (as for all minions of section~\ref{sec:app}).
+For uncountable $\mathbf S$ some choice is needed. Over ZF, the lemma for all finite $\bB$ is equivalent to the Boolean prime ideal theorem, which is weaker than the axiom of choice. In our applications $\mathbf S=\bF_\M(\bA)$, which is countable whenever $\M(A)$ is (as for all minions of section~\ref{sec:app}).
 \end{remark}
 
 Free structures and the equivalence of (ii) and (iii) below are due to Barto, Bulín, Krokhin and Opršal \cite{BBKO}, who treat (i) for the relaxations of section~\ref{sec:app}; for an arbitrary minion, the $\M$-relaxation is the ``minion test'' of Ciardo and Živný \cite{CZ-CLAP,CZ-tensors}.
@@ -392,7 +388,7 @@ Let $(\bA,\bB)$ be a PCSP template and $\M$ a minion. The following are equivale
 \begin{enumerate}[label=(\roman*)]
   \item the $\M$-relaxation solves $\PCSP(\bA,\bB)$;
   \item $\bF_\M(\bA)\to\bB$;
-  \item there is a minion homomorphism $\M\to\Pol(\bA,\bB)$.
+  \item $\M\to\Pol(\bA,\bB)$.
 \end{enumerate}
 \end{theorem}
 
@@ -452,7 +448,7 @@ Let $g\in\M(X)$ and $f\in\N(X)$. We say that $f$ \emph{satisfies the identities 
 If $\xi\colon\M\to\N$ is a minion homomorphism, then $\xi_X(g)$ satisfies the identities of $g$, since $\N(\pi)(\xi_X(g))=\xi_D(\M(\pi)(g))$.
 
 \begin{theorem}[generic elements]\label{thm:generic}
-Let $\M$ be a minion and, for each $j$ in an index set $J$, let $g_j\in\M(X_j)$. Assume
+Let $\M$ be a minion and, for each $j$ in an index set $J$, let $g_j\in\M(X_j)$. Suppose the following condition holds
 \begin{enumerate}
   \item[(G)] every label cover instance that has an $\M$-solution has one in which all entries are minors of a single $g_j$.
 \end{enumerate}
@@ -462,7 +458,7 @@ Then the $\M$-relaxation solves $\PCSP(\bA,\bB)$ if and only if for every $j\in 
 \begin{proof}
 ($\Rightarrow$) Take $f_j=\xi_{X_j}(g_j)$ for a minion homomorphism $\xi\colon\M\to\Pol(\bA,\bB)$, which exists by theorem~\ref{thm:pcsp}.
 
-($\Leftarrow$) Suppose $\Sigma_{\bI}$ has an $\M$-solution. By (G) there is some $j \in J$ and an $\M$-solution $(p_x)_x$ of the form $p_x=\M(\pi_x)(g_j)$, for some functions $\pi_x\colon X_j\to D_x$. We show that $v\mapsto f_j(\pi_v)$ is a homomorphism $\bI\to\bB$. For an element $v$ of $\bI$, $\pi_v$ is a function $X_j\to D_v=A$, that is, an element of $A^{X_j}$, so $f_j(\pi_v)\in B$ makes sense.
+($\Leftarrow$) Suppose $\Sigma_{\bI}$ has an $\M$-solution. By (G) there is some $j \in J$ and an $\M$-solution $(p_x)_x$ of the form $p_x=\M(\pi_x)(g_j)$, for some functions $\pi_x\colon X_j\to D_x$. We show that $v\mapsto f_j(\pi_v)$ is a homomorphism $\bI\to\bB$. This makes sense because, for $v \in I$, $\pi_v$ is a function $X_j\to D_v=A$, that is, an element of $A^{X_j}$, so $f_j(\pi_v)\in B$.
 
 First, note that $f_j(\pi_v)$ is independent of the choice of $\pi_v$. Suppose that $p_v=\M(\pi')(g_j)$. As $f_j$ satisfies the identities of $g_j$, the minors of $f_j$ along $\pi_v$ and along $\pi'$ are the same function on $A^A$, and evaluating it at $\id_A$ gives $f_j(\pi_v)=f_j(\pi')$.
 
@@ -471,13 +467,13 @@ Now let $c=((v_1,\dots,v_k),R)$ be a constraint of $\bI$. The constraint $(v_i,c
 
 The proof of ($\Leftarrow$) shows a little more than $\bI\to\bB$: from an $\M$-solution made of minors of a single $g_j$, it constructs a homomorphism $\bI\to\bB$ explicitly, by applying $f_j$ to the list of elements of $A$ that make up each entry $p_v$. We will come back to this in section~\ref{sec:search-round}.
 
-Theorem~\ref{thm:generic} gives the following recipe for deciding whether a given algorithm $\mathcal U$, which accepts or rejects finite $\tau$-structures, solves $\PCSP(\bA,\bB)$, that is, whether it accepts every $\bI$ with $\bI\to\bA$ and rejects every $\bI$ with $\bI\not\to\bB$.
+Theorem~\ref{thm:generic} gives the following recipe for deciding whether a given algorithm $\mathcal U$ (which accepts or rejects finite $\tau$-structures) solves $\PCSP(\bA,\bB)$.
 \begin{enumerate}[label=(\arabic*)]
-  \item \emph{Find the minion.} Find a minion $\M$ such that, for every finite $\tau$-structure $\bI$, the algorithm $\mathcal U$ accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\M$-solution. Then $\mathcal U$ and the $\M$-relaxation accept the same instances, so $\mathcal U$ solves $\PCSP(\bA,\bB)$ if and only if the $\M$-relaxation does.
-  \item \emph{Find generic elements.} Find elements $g_j\in\M(X_j)$, for $j$ in some index set $J$, satisfying (G). In our examples $J$ is the set of positive integers and $g_j$ is a canonical element of arity $j$ (or $2j+1$), and (G) is proved by taking a given $\M$-solution (modified if necessary) and choosing $j$, depending on the solution, so that all of its finitely many entries are minors of $g_j$.
-  \item \emph{Determine the identities.} For every $j$, describe the functions $f\colon A^{X_j}\to B$ satisfying the identities of $g_j$, that is, those with $\Pol(\bA,\bB)(\pi)(f)=\Pol(\bA,\bB)(\pi')(f)$ whenever $\M(\pi)(g_j)=\M(\pi')(g_j)$. In our examples this is a symmetry condition, such as invariance under all permutations of the coordinates.
+  \item Find a minion $\M$ such that, for every finite $\tau$-structure $\bI$, $\mathcal U$ accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\M$-solution (then $\mathcal U$ solves $\PCSP(\bA,\bB)$ if and only if the $\M$-relaxation does).
+  \item Find $g_j\in\M(X_j)$, for $j$ in some index set $J$, such that condition (G) holds.
+  \item For every $j$, describe the polymorphisms $f\colon A^{X_j}\to B$ satisfying the identities of $g_j$.
 \end{enumerate}
-By theorem~\ref{thm:generic}, $\mathcal U$ then solves $\PCSP(\bA,\bB)$ if and only if, for every $j\in J$, the polymorphism minion $\Pol(\bA,\bB)$ contains a function of the kind found in step (3).
+Then, by theorem~\ref{thm:generic}, $\mathcal U$ solves $\PCSP(\bA,\bB)$ if and only if, for every $j\in J$, $\Pol(\bA,\bB)$ contains an $X_j$-ary polymorphism of the kind found in step (3).
 
 In sections~\ref{sec:ac} to~\ref{sec:ba} we follow this recipe for arc consistency, BLP, AIP and BLP+AIP: step (1) is a proposition (or a short argument) about the algorithm, steps (2) and (3) form a lemma, and the characterisation of the algorithm then follows from theorem~\ref{thm:generic}. In step (3) we repeatedly use that, for an $n$-ary polymorphism $f$ and a function $\pi\colon[n]\to D$, the minor $\Pol(\bA,\bB)(\pi)(f)$ is the function $y\mapsto f(y\circ\pi)=f(y(\pi(1)),\dots,y(\pi(n)))$ on $A^D$.
 
@@ -557,7 +553,7 @@ The minion $\Qc$ consists of the rational probability distributions, with pushfo
 \]
 \end{definition}
 
-Here an empty sum is $0$, so a point $y\in Y$ outside the image of $\pi$ receives weight $0$. Since every $x\in X$ contributes to a single $y$ (namely $\pi(x)$), the pushforward again has total weight $1$. For example, if $q=(\tfrac13,\tfrac23)$ on $\{1,2\}$ and $\pi$ maps both points to $a\in\{a,b,c\}$, then $\Qc(\pi)(q)$ gives weight $1$ to $a$ and $0$ to $b$ and $c$. In terms of convex combinations, the variables outside the image of $\pi$ are dummy variables of the minor, with coefficient $0$.
+Here an empty sum is $0$, so a point $y\in Y$ outside the image of $\pi$ receives weight $0$. Since every $x\in X$ contributes to a single $y$ (namely $\pi(x)$), the pushforward again has total weight $1$.
 
 The \emph{basic LP relaxation} (BLP) of an instance $\bI$ is the following system. Its unknowns are a number $\mu_v(a)$ for every $v\in I$ and $a\in A$, and a number $\mu_c(r)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and every $r\in R^{\bA}$, subject to
 \begin{gather*}
