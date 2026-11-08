@@ -440,16 +440,7 @@ If the $\M$-relaxation solves $\PCSP(\bA,\bB)$, we thus have $\bA\to\bF_\M(\bA)\
 
 \subsection{The Recipe}\label{sec:recipe}
 
-\noindent\begin{minipage}{\linewidth}
-Theorem~\ref{thm:pcsp} turns the question ``does an algorithm $\mathcal{U}$ solve $\PCSP(\bA,\bB)$?'' into a question about polymorphisms. To answer it concretely, we
-\begin{enumerate}[label=(\arabic*)]
-  \item find a minion $\M$ such that $\mathcal{U}$ accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\M$-solution (because then the $\M$-relaxation solves $\PCSP(\bA,\bB)$ if and only if $\mathcal{U}$ solves $\PCSP(\bA,\bB)$);
-  \item find \emph{generic} elements of $\M$, such that every instance with an $\M$-solution has one consisting of minors of a single generic element;
-  \item determine which minor identities these generic elements satisfy.
-\end{enumerate}
-\end{minipage}
-
-Then $\mathcal{U}$ solves $\PCSP(\bA,\bB)$ if and only if $\Pol(\bA,\bB)$ has elements satisfying the same identities. We first prove this in general, and then apply it to four algorithms.
+By theorem~\ref{thm:pcsp}, a relaxation solves $\PCSP(\bA,\bB)$ if and only if its minion maps to $\Pol(\bA,\bB)$. A minion homomorphism consists of one map for every finite set, all compatible with each other, so this is hard to check directly. The theorem below reduces it to the existence of single polymorphisms, one for each of certain \emph{generic} elements of the minion, that satisfy the same minor identities as these elements.
 
 \begin{definition}[identities]\label{def:identities}
 Let $g\in\M(X)$ and $f\in\N(X)$. We say that $f$ \emph{satisfies the identities of} $g$ if, for every finite set $D$ and all functions $\pi,\pi'\colon X\to D$,
@@ -480,7 +471,15 @@ Now let $c=((v_1,\dots,v_k),R)$ be a constraint of $\bI$. The constraint $(v_i,c
 
 The proof of ($\Leftarrow$) shows a little more than $\bI\to\bB$: from an $\M$-solution made of minors of a single $g_j$, it constructs a homomorphism $\bI\to\bB$ explicitly, by applying $f_j$ to the list of elements of $A$ that make up each entry $p_v$. We will come back to this in section~\ref{sec:search-round}.
 
-For each algorithm below we find generic elements such that (G) holds and identify the functions satisfying the identities of these generic elements. Recall that for an $n$-ary polymorphism $f$ and $\pi\colon[n]\to D$, the minor $\Pol(\bA,\bB)(\pi)(f)$ is the function $y\mapsto f(y\circ\pi)=f(y(\pi(1)),\dots,y(\pi(n)))$ on $A^D$.
+Theorem~\ref{thm:generic} gives the following recipe for deciding whether a given algorithm $\mathcal U$, which accepts or rejects finite $\tau$-structures, solves $\PCSP(\bA,\bB)$, that is, whether it accepts every $\bI$ with $\bI\to\bA$ and rejects every $\bI$ with $\bI\not\to\bB$.
+\begin{enumerate}[label=(\arabic*)]
+  \item \emph{Find the minion.} Find a minion $\M$ such that, for every finite $\tau$-structure $\bI$, the algorithm $\mathcal U$ accepts $\bI$ if and only if $\Sigma_{\bI}$ has an $\M$-solution. Then $\mathcal U$ and the $\M$-relaxation accept the same instances, so $\mathcal U$ solves $\PCSP(\bA,\bB)$ if and only if the $\M$-relaxation does.
+  \item \emph{Find generic elements.} Find elements $g_j\in\M(X_j)$, for $j$ in some index set $J$, satisfying (G). In our examples $J$ is the set of positive integers and $g_j$ is a canonical element of arity $j$ (or $2j+1$), and (G) is proved by taking a given $\M$-solution (modified if necessary) and choosing $j$, depending on the solution, so that all of its finitely many entries are minors of $g_j$.
+  \item \emph{Determine the identities.} For every $j$, describe the functions $f\colon A^{X_j}\to B$ satisfying the identities of $g_j$, that is, those with $\Pol(\bA,\bB)(\pi)(f)=\Pol(\bA,\bB)(\pi')(f)$ whenever $\M(\pi)(g_j)=\M(\pi')(g_j)$. In our examples this is a symmetry condition, such as invariance under all permutations of the coordinates.
+\end{enumerate}
+By theorem~\ref{thm:generic}, $\mathcal U$ then solves $\PCSP(\bA,\bB)$ if and only if, for every $j\in J$, the polymorphism minion $\Pol(\bA,\bB)$ contains a function of the kind found in step (3).
+
+In sections~\ref{sec:ac} to~\ref{sec:ba} we follow this recipe for arc consistency, BLP, AIP and BLP+AIP: step (1) is a proposition (or a short argument) about the algorithm, steps (2) and (3) form a lemma, and the characterisation of the algorithm then follows from theorem~\ref{thm:generic}. In step (3) we repeatedly use that, for an $n$-ary polymorphism $f$ and a function $\pi\colon[n]\to D$, the minor $\Pol(\bA,\bB)(\pi)(f)$ is the function $y\mapsto f(y\circ\pi)=f(y(\pi(1)),\dots,y(\pi(n)))$ on $A^D$.
 
 %---------------------------------------------------------------------
 \subsection{Arc Consistency}\label{sec:ac}
