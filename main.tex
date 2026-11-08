@@ -557,32 +557,33 @@ The minion $\Qc$ consists of the rational probability distributions, with pushfo
 
 Here an empty sum is $0$, so a point $y\in Y$ outside the image of $\pi$ receives weight $0$. Since every $x\in X$ contributes to a single $y$ (namely $\pi(x)$), the pushforward again has total weight $1$.
 
-Fix an instance $\bI$. $\BLP_{\bA}(\bI)$ is the following system with variables
+Fix an instance $\bI$. The \emph{basic LP relaxation} $\BLP_{\bA}(\bI)$ is the following system of linear equations, with variables
 \begin{itemize}
   \item $\mu_v(a)$ for every element $v\in I$ and every $a\in A$, and
   \item $\mu_c(r)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and every $r\in R^{\bA}$,
 \end{itemize}
-each of which takes values in $\Q\cap[0,1]$, and its equations are
-\begin{enumerate}
-  \item[(B1)] $\displaystyle\sum_{a\in A}\mu_v(a)=1$ for every $v\in I$, and
-  \item[(B2)] $\displaystyle\sum_{r\in R^{\bA},\ r_i=a}\mu_c(r)=\mu_{v_i}(a)$ for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$, every $i\in[k]$ and every $a\in A$.
-\end{enumerate}
-A \emph{solution} of $\BLP_{\bA}(\bI)$ is an assignment of values in $\Q\cap[0,1]$ to the variables satisfying (B1) and (B2), and $\BLP_{\bA}(\bI)$ is \emph{feasible} if it has a solution.
-
-In a solution, $\mu_v$ is a probability distribution on $A$ for each element $v$, which one may think of as a fractional value of $v$, and $\mu_c$ is a function $R^{\bA}\to\Q_{\geq0}$ for each constraint $c$ whose $i$-th marginal, by (B2), is $\mu_{v_i}$. Summing (B2) over $a\in A$ and using (B1) shows that $\mu_c$ has total weight $1$, so $\mu_c$ is a probability distribution on $R^{\bA}$, a fractional choice of a tuple for $c$ that is consistent with the fractional values of $v_1,\dots,v_k$.
+each of which takes values in $\Q\cap[0,1]$. Its equations are, for every $v\in I$,
+\[
+\sum_{a\in A}\mu_v(a)=1,\tag{B1}
+\]
+and for every constraint $c=((v_1,\dots,v_k),R)$ of $\bI$, every $i\in[k]$ and every $a\in A$,
+\[
+\sum_{r\in R^{\bA},\ r_i=a}\mu_c(r)=\mu_{v_i}(a).\tag{B2}
+\]
+A \emph{solution} of $\BLP_{\bA}(\bI)$ is an assignment of values in $\Q\cap[0,1]$ to the variables satisfying (B1) and (B2), and $\BLP_{\bA}(\bI)$ is \emph{feasible} if it has a solution. Thus $\mu_v$ is a fractional value of $v$ (a probability distribution on $A$), and $\mu_c$ a fractional choice of a tuple for $c$ whose $i$-th marginal is $\mu_{v_i}$.
 
 \begin{definition}[the algorithm BLP]
 The algorithm \emph{BLP} accepts $\bI$ if $\BLP_{\bA}(\bI)$ is feasible, and rejects it otherwise.
 \end{definition}
 
-That this is a polynomial-time algorithm is a matter of linear programming. A \emph{linear program} is a finite system of linear equations and inequalities with rational coefficients in real unknowns (possibly together with a linear function of the unknowns to be maximised), and $\BLP_{\bA}(\bI)$ is one, with the inequalities $0\leq\mu_v(a)\leq1$ and $0\leq\mu_c(r)\leq1$. Linear programs can be solved in polynomial time, by the ellipsoid method or by interior point methods \cite{Sch}: there is an algorithm that decides whether a given linear program has a real solution and, if it does, outputs one with rational coordinates (an optimal one, if a function is to be maximised and is bounded), in time polynomial in the size of the program. In particular, a linear program has a real solution if and only if it has a rational one, so it makes no difference that we ask for rational values. Since $\bA$ is fixed, the size of $\BLP_{\bA}(\bI)$ is polynomial in the size of $\bI$, so BLP runs in polynomial time. Note also that the algorithm does not only answer yes or no, but finds an actual solution of $\BLP_{\bA}(\bI)$; this will matter in section~\ref{sec:search-round}.
+Deciding whether a system of linear equations and inequalities with rational coefficients (here $0\leq\mu\leq1$ for every variable $\mu$) is feasible is linear programming, which can be done in polynomial time, and the algorithms for it also produce a solution with rational values. So BLP runs in polynomial time, and it finds an actual solution rather than only answering yes or no, which will matter in section~\ref{sec:search-round}.
 
 \begin{proposition}\label{prop:blp}
 BLP accepts $\bI$ if and only if $\Sigma_{\bI}$ has a $\Qc$-solution.
 \end{proposition}
 
 \begin{proof}
-For a constraint $c=((v_1,\dots,v_k),R)$ of $\bI$ and $\mu_c\colon R^{\bA}\to\Q_{\geq0}$, the left-hand side of (B2) is $\Qc(\pr_i)(\mu_c)(a)$, the pushforward of $\mu_c$ along $\pr_i\colon R^{\bA}\to A$, evaluated at $a$. So by the discussion above, a solution of $\BLP_{\bA}(\bI)$ is the same as a family of distributions $p_v=\mu_v\in\Qc(A)$ for $v\in I$ and $p_c=\mu_c\in\Qc(R^{\bA})$ for the constraints $c$ of $\bI$ with $\Qc(\pr_i)(p_c)=p_{v_i}$ for all $c$ and $i$, that is, a $\Qc$-solution of $\Sigma_{\bI}$.
+Summing (B2) over $a\in A$ and using (B1) shows that each $\mu_c$ has total weight $1$, and the left-hand side of (B2) is $\Qc(\pr_i)(\mu_c)(a)$. So a solution of $\BLP_{\bA}(\bI)$ is the same as a family $p_v=\mu_v\in\Qc(A)$ and $p_c=\mu_c\in\Qc(R^{\bA})$ with $\Qc(\pr_i)(p_c)=p_{v_i}$ for all $c$ and $i$, that is, a $\Qc$-solution of $\Sigma_{\bI}$.
 \end{proof}
 
 \begin{definition}[symmetric functions]
@@ -638,20 +639,20 @@ The minion $\Za$ is given by
 
 As for $\Qc$, an empty sum is $0$, so points outside the image of $\pi$ receive weight $0$, and the total weight $1$ is preserved. Unlike for $\Qc$, a point in the image may also receive weight $0$, when contributions $+1$ and $-1$ cancel.
 
-Fix an instance $\bI$. The \emph{affine integer relaxation} $\AIP_{\bA}(\bI)$ of $\bI$ is the system with the same unknowns and the same equations (B1) and (B2) as $\BLP_{\bA}(\bI)$, but in which the unknowns take values in $\Z$. A \emph{solution} of $\AIP_{\bA}(\bI)$ is an assignment of integers to the unknowns satisfying (B1) and (B2). Compared with $\BLP_{\bA}(\bI)$, the values are now integers, but they may be negative.
+Fix an instance $\bI$. The \emph{affine integer relaxation} $\AIP_{\bA}(\bI)$ is the system with the same variables and the same equations (B1) and (B2) as $\BLP_{\bA}(\bI)$, but with the variables taking values in $\Z$ (so they may be negative). A \emph{solution} of $\AIP_{\bA}(\bI)$ is an assignment of integers to the variables satisfying (B1) and (B2).
 
 \begin{definition}[the algorithm AIP]
 The algorithm \emph{AIP} accepts $\bI$ if $\AIP_{\bA}(\bI)$ has a solution, and rejects it otherwise.
 \end{definition}
 
-Whether a system of linear equations with integer coefficients has an integer solution can be decided in polynomial time, by bringing the system into Hermite normal form (an analogue of Gaussian elimination over $\Z$), and if there is an integer solution, this also produces one \cite{Sch}. So AIP runs in polynomial time and, like BLP, finds an actual solution. It is essential that there are no inequalities here: deciding whether a system of linear equations and inequalities has an integer solution (integer programming) is NP-complete, which is why AIP drops the nonnegativity of $\BLP_{\bA}(\bI)$ rather than adding integrality to it.
+Whether a system of linear equations with integer coefficients has an integer solution can be decided, and a solution found, in polynomial time, by bringing the system into Hermite normal form. It matters that there are no inequalities: with them this would be integer programming, which is NP-complete, and this is why AIP drops the nonnegativity of $\BLP_{\bA}(\bI)$.
 
 \begin{proposition}\label{prop:aip}
 AIP accepts $\bI$ if and only if $\Sigma_{\bI}$ has a $\Za$-solution.
 \end{proposition}
 
 \begin{proof}
-As in the proof of proposition~\ref{prop:blp}, summing (B2) over $a$ shows that each $\mu_c$ has total weight $1$, and the left-hand side of (B2) is $\Za(\pr_i)(\mu_c)(a)$. So a solution of $\AIP_{\bA}(\bI)$ is the same as a family $p_v=\mu_v\in\Za(A)$ and $p_c=\mu_c\in\Za(R^{\bA})$ with $\Za(\pr_i)(p_c)=p_{v_i}$ for all $c$ and $i$, that is, a $\Za$-solution of $\Sigma_{\bI}$.
+As for proposition~\ref{prop:blp}, with $\Za$ in place of $\Qc$.
 \end{proof}
 
 \begin{definition}[alternating functions]
@@ -936,7 +937,6 @@ That this is a genuine obstruction was shown by Larrauri \cite{Lar}: for BLP, AI
 \bibitem{KOTYZ} G.~Kun, R.~O'Donnell, S.~Tamaki, Y.~Yoshida, Y.~Zhou. Linear programming, width-1 CSPs, and robust satisfaction. In \emph{Proc.\ ITCS}, 2012.
 \bibitem{Lar} A.~Larrauri. Ineffectiveness for search and undecidability of PCSP meta-problems. arXiv:2504.04639, 2025.
 \bibitem{Mottet} A.~Mottet. Algebraic and algorithmic synergies between promise and infinite-domain CSPs. In \emph{Proc.\ LICS}, 2025. arXiv:2501.13740.
-\bibitem{Sch} A.~Schrijver. \emph{Theory of Linear and Integer Programming}. Wiley, 1986.
 \bibitem{Zhuk} D.~Zhuk. Singleton algorithms for the constraint satisfaction problem. arXiv:2509.18434, 2025.
 \end{thebibliography}
 }
